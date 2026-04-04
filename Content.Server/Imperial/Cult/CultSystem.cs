@@ -1944,7 +1944,7 @@ public sealed class CultSystem : EntitySystem
                 NarSieRitualMusic,
                 Filter.Broadcast(),
                 true,
-                AudioParams.Default.WithLoop(true).WithVolume(-4f));
+                AudioParams.Default.WithLoop(false).WithVolume(-4f));
             cultistComp.ActiveNarSieRitualAudio = ritualAudio?.Entity;
         }
 
@@ -1967,14 +1967,8 @@ public sealed class CultSystem : EntitySystem
 
     private void EndNarSieRitual(EntityUid cultist)
     {
-        if (TryComp<CultistComponent>(cultist, out var cultistComp)
-            && cultistComp.ActiveNarSieRitualAudio.HasValue
-            && Exists(cultistComp.ActiveNarSieRitualAudio.Value))
-        {
-            _audio.SetState(cultistComp.ActiveNarSieRitualAudio.Value, AudioState.Stopped);
-            QueueDel(cultistComp.ActiveNarSieRitualAudio.Value);
+        if (TryComp<CultistComponent>(cultist, out var cultistComp))
             cultistComp.ActiveNarSieRitualAudio = null;
-        }
 
         if (!_activeNarSieBarriers.Remove(cultist, out var barriers))
             return;
