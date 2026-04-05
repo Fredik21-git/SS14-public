@@ -43,11 +43,6 @@ public sealed partial class CultRuneComponent : Component
     public bool Concealed;
 
     /// <summary>
-    /// Сколько культистов сейчас стоит на руне (обновляется сервером).
-    /// </summary>
-    public int InvokersOnRune;
-
-    /// <summary>
     /// Минимум культистов для активации.
     /// </summary>
     [DataField]

@@ -361,7 +361,23 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
     private void EnsureNarSieBeacons(Entity<CultRuleComponent> ent, EntityUid? stationUid = null)
     {
         if (ent.Comp.NarSieBeaconTargets.Count > 0 && ent.Comp.NarSieBeaconLabels.Count > 0)
-            return;
+        {
+            if (stationUid == null)
+                return;
+
+            var allMatchStation = true;
+            foreach (var beaconUid in ent.Comp.NarSieBeaconTargets)
+            {
+                if (_station.GetOwningStation(beaconUid) != stationUid)
+                {
+                    allMatchStation = false;
+                    break;
+                }
+            }
+
+            if (allMatchStation)
+                return;
+        }
 
         var candidates = new List<(EntityUid Uid, string Label)>();
         var query = EntityQueryEnumerator<NavMapBeaconComponent>();

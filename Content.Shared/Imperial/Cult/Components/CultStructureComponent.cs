@@ -30,8 +30,6 @@ public sealed partial class CultStructureComponent : Component
     [DataField]
     public TimeSpan Cooldown = TimeSpan.FromMinutes(4);
 
-    public TimeSpan? NextUse;
-
     /// <summary>
     /// Скрыта ли структура заклинанием Маскировки присутствия.
     /// </summary>
@@ -43,9 +41,4 @@ public sealed partial class CultStructureComponent : Component
     /// </summary>
     [DataField]
     public string? OriginalProto;
-
-    /// <summary>
-    /// Следующий тик пассивного эффекта пилона (лечение + конвертация).
-    /// </summary>
-    public TimeSpan NextPylonTick;
 }

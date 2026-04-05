@@ -118,6 +118,24 @@ cult-action-construct-wall-desc = Воздвигает короткоживущ�
 
 # Системные сообщения культа
 cult-commune-format = [ОБЩИНА] { $sender }: { $message }
+
+cult-blood-magic-select-title = Выберите заклинание:
+cult-blood-magic-swap-title = Заменить подготовленное заклинание
+cult-blood-magic-swap-choose = Заменить одно из подготовленных на: { $spell }
+
+cult-spell-stun = Оглушение
+cult-spell-shackles = Теневые оковы
+cult-spell-teleport = Телепорт
+cult-spell-emp = ЭМИ
+cult-spell-twisted-construction = Искажённое строительство
+cult-spell-summon-dagger = Призыв кинжала
+cult-spell-summon-equipment = Призыв снаряжения
+cult-spell-conceal-presence = Маскировка присутствия
+cult-spell-blood-rites = Обряды крови
+cult-spell-unknown = Неизвестное заклинание
+
+alerts-cultist-hud-name = Культист
+alerts-cultist-hud-desc = Вы отмечены как последователь Нар'Си.
 cult-commune-hint = Используйте Общение, чтобы передать сообщение всем культистам.
 cult-commune-converted = [ОБЩИНА] { $name } обращён в веру Нар'Си!
 cult-commune-sacrifice = [ОБЩИНА] { $name } принесён в жертву Нар'Си!

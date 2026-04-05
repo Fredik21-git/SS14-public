@@ -130,6 +130,41 @@ public sealed class CultRuneSystem : EntitySystem
                 _cult.DealSelfDamage(cultistUid, tether.Homunculi.Count * CultSpiritTetherComponent.BrutePerHomunculus);
             }
         }
+
+        UpdateEmpowerRuneState();
+    }
+
+    private void UpdateEmpowerRuneState()
+    {
+        var cultists = EntityQueryEnumerator<CultistComponent, TransformComponent>();
+        while (cultists.MoveNext(out var cultistUid, out var cultist, out var cultXform))
+        {
+            var onEmpower = false;
+            var cultCoords = _xform.GetMapCoordinates(cultistUid, cultXform);
+
+            var runes = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
+            while (runes.MoveNext(out var runeUid, out var runeComp, out var runeXform))
+            {
+                if (runeComp.RuneType != CultRuneType.Empowering)
+                    continue;
+
+                var runeCoords = _xform.GetMapCoordinates(runeUid, runeXform);
+                if (runeCoords.MapId != cultCoords.MapId)
+                    continue;
+
+                if ((runeCoords.Position - cultCoords.Position).Length() > 0.75f)
+                    continue;
+
+                onEmpower = true;
+                break;
+            }
+
+            if (cultist.OnEmpowerRune == onEmpower)
+                continue;
+
+            cultist.OnEmpowerRune = onEmpower;
+            Dirty(cultistUid, cultist);
+        }
     }
 
     // ──────────────────────── Rune Interaction ──────────────────────────
@@ -381,17 +416,37 @@ public sealed class CultRuneSystem : EntitySystem
     // Возвращает все барьерные руны, соединённые цепью (в радиусе 3 тайлов)
     private List<EntityUid> FindBarrierChain(EntityUid uid)
     {
-        var result = new List<EntityUid> { uid };
-        var pos = _xform.GetMapCoordinates(uid);
-        var query = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
-        while (query.MoveNext(out var runeUid, out var r, out var xform))
+        var seedCoords = _xform.GetMapCoordinates(uid);
+        var visited = new HashSet<EntityUid> { uid };
+        var queue = new Queue<EntityUid>();
+        queue.Enqueue(uid);
+
+        while (queue.TryDequeue(out var current))
         {
-            if (runeUid == uid) continue;
-            if (r.RuneType != CultRuneType.Barrier) continue;
-            if ((_xform.GetMapCoordinates(runeUid, xform).Position - pos.Position).Length() > 3f) continue;
-            result.Add(runeUid);
+            var currentCoords = _xform.GetMapCoordinates(current);
+
+            var query = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
+            while (query.MoveNext(out var runeUid, out var runeComp, out var xform))
+            {
+                if (visited.Contains(runeUid))
+                    continue;
+
+                if (runeComp.RuneType != CultRuneType.Barrier)
+                    continue;
+
+                var candidateCoords = _xform.GetMapCoordinates(runeUid, xform);
+                if (candidateCoords.MapId != seedCoords.MapId)
+                    continue;
+
+                if ((candidateCoords.Position - currentCoords.Position).Length() > 3f)
+                    continue;
+
+                visited.Add(runeUid);
+                queue.Enqueue(runeUid);
+            }
         }
-        return result;
+
+        return visited.ToList();
     }
 
     private void ActivateSummoningRune(EntityUid uid, CultRuneComponent rune, EntityUid invoker)
@@ -444,6 +499,7 @@ public sealed class CultRuneSystem : EntitySystem
             if (eXform.MapID != pos.MapId) continue;
             if ((eXform.WorldPosition - pos.Position).Length() > 8f) continue;
             if (IsCultAligned(eUid)) continue;
+            if (!TryComp<MobStateComponent>(eUid, out var mobState) || mobState.CurrentState == MobState.Dead) continue;
             if (!HasComp<DamageableComponent>(eUid)) continue;
             targets.Add(eUid);
         }

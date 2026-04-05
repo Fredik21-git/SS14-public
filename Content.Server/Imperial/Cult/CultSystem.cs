@@ -1535,7 +1535,12 @@ public sealed class CultSystem : EntitySystem
         _chat.TrySendInGameICMessage(caster, Loc.GetString("cult-incantation-shackles"), InGameICChatType.Whisper, false, ignoreActionBlocker: true);
 
         var shackles = Spawn("ShadowShackles", Transform(target).Coordinates);
-        _cuffs.TryAddNewCuffs(target, caster, shackles);
+        if (!_cuffs.TryAddNewCuffs(target, caster, shackles))
+        {
+            QueueDel(shackles);
+            return false;
+        }
+
         // Немота 12 сек
         if (TryComp<StatusEffectsComponent>(target, out var targetStatusEffects))
         {
@@ -1992,19 +1997,10 @@ public sealed class CultSystem : EntitySystem
         return false;
     }
 
-    private static string GetSpellLocKey(string spellId) => spellId switch
-    {
-        "ActionCultStun"               => "cult-spell-stun",
-        "ActionCultShackles"           => "cult-spell-shackles",
-        "ActionCultTeleport"           => "cult-spell-teleport",
-        "ActionCultEmp"                => "cult-spell-emp",
-        "ActionCultTwistedConstruction"=> "cult-spell-twisted-construction",
-        "ActionCultSummonDagger"       => "cult-spell-summon-dagger",
-        "ActionCultSummonEquipment"    => "cult-spell-summon-equipment",
-        "ActionCultConcealPresence"    => "cult-spell-conceal-presence",
-        "ActionCultBloodRites"         => "cult-spell-blood-rites",
-        _                              => "cult-spell-unknown",
-    };
+    private static string GetSpellLocKey(string spellId) =>
+        CultSpellLocKeys.Mapping.TryGetValue(spellId, out var key)
+            ? key
+            : "cult-spell-unknown";
 
     public void DealSelfDamage(EntityUid uid, float amount)
     {

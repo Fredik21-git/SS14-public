@@ -41,6 +41,21 @@ cult-action-recall-blood-spear-name = Recall Blood Spear
 cult-action-recall-blood-spear-desc = Returns your summoned blood spear to your hand.
 cult-blood-spear-not-found = Your blood spear does not answer your call.
 
+cult-blood-magic-select-title = Choose a spell:
+cult-blood-magic-swap-title = Replace Prepared Spell
+cult-blood-magic-swap-choose = Replace one prepared spell with: { $spell }
+
+cult-spell-stun = Stun
+cult-spell-shackles = Shadow Shackles
+cult-spell-teleport = Teleport
+cult-spell-emp = EMP
+cult-spell-twisted-construction = Twisted Construction
+cult-spell-summon-dagger = Summon Dagger
+cult-spell-summon-equipment = Summon Equipment
+cult-spell-conceal-presence = Conceal Presence
+cult-spell-blood-rites = Blood Rites
+cult-spell-unknown = Unknown spell
+
 cult-shield-activated = Magical shield activated. Charges: { $charges }.
 cult-shield-restored = Shield charges restored to { $charges }.
 cult-spell-no-uses = This spell has no uses left. Prepare it again through Blood Magic.
