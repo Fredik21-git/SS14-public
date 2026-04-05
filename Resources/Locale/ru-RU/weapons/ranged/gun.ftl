@@ -5,7 +5,7 @@ gun-selector-verb = Изменить на {$mode}
 gun-selected-mode = Выбран {$mode}
 gun-disabled = Вы не можете использовать оружие!
 gun-clumsy = Оружие взрывается вам в лицо!
-gun-set-fire-mode = Выбрать режим {$mode}
+gun-set-fire-mode = Выбран режим {$mode}
 
 # SelectiveFire
 gun-SemiAuto = полуавто
@@ -49,3 +49,7 @@ gun-revolver-spin = Вращать барабан
 gun-revolver-spun = Барабан вращается
 gun-speedloader-empty = Спидлоадер пуст
 gun-magazine-whitelist-fail = Это не влезет в пистолет!
+
+# GunSpreadModifier
+examine-gun-spread-modifier-reduction = Разброс сокращён на [color=yellow]{$percentage}%[/color].
+examine-gun-spread-modifier-increase = Разброс увеличен на [color=yellow]{$percentage}%[/color].
