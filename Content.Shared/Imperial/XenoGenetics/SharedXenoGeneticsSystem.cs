@@ -100,13 +100,13 @@ public abstract class SharedXenoGeneticsSystem : EntitySystem
                 {
                     BreakOnMove = true,
                     NeedHand = true,
-                });
                 break;
 
             case GeneSplicerMode.Withdraw:
                 _doAfter.TryStartDoAfter(new DoAfterArgs(EntityManager, args.User, comp.WithdrawTime, new GeneWithdrawDoAfterEvent(), uid, target: args.Target, used: uid)
                 {
                     BreakOnMove = true,
+                        var args = new DamageChangedEvent(totalDelta, totalDelta, true, user, null, null);
                     NeedHand = true,
                 });
                 break;
