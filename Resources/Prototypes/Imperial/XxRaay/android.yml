@@ -1,9 +1,6 @@
 - type: entity
   save: false
-  parent:
-  - MobBloodstream
-  - MobFlammable
-  - BaseMobSpecies
+  parent: BaseSpeciesMobOrganic
   id: BaseMobSpeciesDetroit
   abstract: true
   components:

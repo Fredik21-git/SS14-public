@@ -76,6 +76,36 @@
     - BasicRoundstartVariation
 
 - type: gamePreset
+  id: AllAtOncePlus
+  alias:
+  - allplus
+  - all+
+  - aao+
+  name: all-at-once-plus-title
+  description: all-at-once-plus-description
+  showInVote: false
+  rules:
+    - Nukeops
+    - Traitor
+    - Revolutionary
+    - Zombie
+    - SyndieBorgroundstart
+    - Pirates
+    - Wizard
+    - Vampire
+    - Xenoborgs
+    - Blob
+    - Cult
+    - BloodBrother
+    - BasicStationEventScheduler
+    - KesslerSyndromeScheduler
+    - MeteorSwarmMildScheduler
+    - MeteorSwarmScheduler
+    - RampingStationEventScheduler
+    - SpaceTrafficControlEventScheduler
+    - BasicRoundstartVariation
+
+- type: gamePreset
   id: Extended
   alias:
   - extended
@@ -199,6 +229,55 @@
   rules:
   - DummyNonAntagChance
   - Revolutionary
+  - SubGamemodesRuleNoWizard
+  - BasicStationEventScheduler
+  - MeteorSwarmScheduler
+  - SpaceTrafficControlEventScheduler
+  - BasicRoundstartVariation
+
+- type: gamePreset
+  id: BloodBrother
+  alias:
+    - bloodbrother
+    - brothers
+    - bb
+  name: blood-brother-title
+  description: blood-brother-description
+  showInVote: false
+  rules:
+  - DummyNonAntagChance
+  - BloodBrother
+  - SubGamemodesRuleNoWizard
+  - BasicStationEventScheduler
+  - MeteorSwarmScheduler
+  - SpaceTrafficControlEventScheduler
+  - BasicRoundstartVariation
+
+- type: gamePreset
+  id: Cult
+  alias:
+    - cult
+    - cultists
+  name: cult-preset-title
+  description: cult-preset-description
+  showInVote: false
+  rules:
+  - Cult
+  - BasicStationEventScheduler
+  - MeteorSwarmScheduler
+  - SpaceTrafficControlEventScheduler
+  - BasicRoundstartVariation
+
+- type: gamePreset
+  id: Blob
+  alias:
+    - blob
+  name: blob-title
+  description: blob-description
+  showInVote: false
+  rules:
+  - DummyNonAntagChance
+  - Blob
   - SubGamemodesRuleNoWizard
   - BasicStationEventScheduler
   - MeteorSwarmScheduler

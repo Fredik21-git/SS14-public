@@ -11,6 +11,11 @@
   recipes:
   - ImperialVehicleWheelchairFolded
 
+- type: entity
+  parent: Hypospray
+  id: StandardHypospray
+  name: standard hypospray
+
 - type: trait
   id: ImperialWheelchairBound
   name: imperial-trait-wheelchair-bound-name

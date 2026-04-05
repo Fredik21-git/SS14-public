@@ -1,0 +1,2 @@
+blob-title = Blob
+blob-description = One crew member becomes the Blob host and begins turning the station into a spreading mass. The crew must find and destroy the core before the infestation takes over.

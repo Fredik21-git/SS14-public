@@ -8,6 +8,10 @@ using Content.Server.RoundEnd;
 using Content.Server.Station.Systems;
 using Content.Shared.Body.Events;
 using Content.Shared.GameTicking.Components;
+<<<<<<< HEAD
+=======
+using Content.Shared.Gibbing;
+>>>>>>> origin/event-content
 using Content.Shared.Ghost;
 using Content.Shared.Imperial.Cult.Components;
 using Content.Shared.Mind;
@@ -188,7 +192,11 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
             if (!TryComp<NavMapBeaconComponent>(beaconUid, out var beacon))
                 continue;
 
+<<<<<<< HEAD
             if (!TryComp<TransformComponent>(beaconUid, out var xform))
+=======
+            if (!TryComp(beaconUid, out TransformComponent? xform))
+>>>>>>> origin/event-content
                 continue;
 
             if (!_navMap.TryGetBeaconLabel(beaconUid, out _, beacon))
@@ -222,7 +230,11 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
             if (!TryComp<NavMapBeaconComponent>(beaconUid, out var beacon))
                 continue;
 
+<<<<<<< HEAD
             if (!TryComp<TransformComponent>(beaconUid, out var xform))
+=======
+            if (!TryComp(beaconUid, out TransformComponent? xform))
+>>>>>>> origin/event-content
                 continue;
 
             if (!_navMap.TryGetBeaconLabel(beaconUid, out var candidate, beacon))
@@ -366,9 +378,17 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
                 return;
 
             var allMatchStation = true;
+<<<<<<< HEAD
             foreach (var beaconUid in ent.Comp.NarSieBeaconTargets)
             {
                 if (_station.GetOwningStation(beaconUid) != stationUid)
+=======
+            foreach (var target in ent.Comp.NarSieBeaconTargets)
+            {
+                if (!EntityManager.EntityExists(target)
+                    || TerminatingOrDeleted(target)
+                    || _station.GetOwningStation(target) != stationUid)
+>>>>>>> origin/event-content
                 {
                     allMatchStation = false;
                     break;
