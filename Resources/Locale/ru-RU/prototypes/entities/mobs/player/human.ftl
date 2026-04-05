@@ -1,5 +1,5 @@
 ent-MobHuman = Урист МакХэндс
-    .desc = { ent-MobHuman.desc }
+    .desc = Обычный человек.
     .suffix = { "" }
 ent-MobHumanSyndicateAgent = Агент Синдиката
     .desc = { ent-MobHuman.desc }
