@@ -612,14 +612,11 @@ public sealed class CultSystem : EntitySystem
             QueueDel(cultist.BuiHolder.Value);
 
         // Убираем ореол, если был прицеплен как дочерняя сущность.
-        if (TryComp<TransformComponent>(uid, out var xform))
+        var children = Transform(uid).ChildEnumerator;
+        while (children.MoveNext(out var child))
         {
-            var children = xform.ChildEnumerator;
-            while (children.MoveNext(out var child))
-            {
-                if (MetaData(child).EntityPrototype?.ID == "CultHaloEffect")
-                    QueueDel(child);
-            }
+            if (MetaData(child).EntityPrototype?.ID == "CultHaloEffect")
+                QueueDel(child);
         }
 
         // Убираем роль/цели культиста из разума.
