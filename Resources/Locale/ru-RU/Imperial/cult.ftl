@@ -202,6 +202,7 @@ cult-action-blood-magic-desc = Открывает окно выбора закл
 
 # UI окна
 cult-rune-select-title = Выбор руны
+cult-blood-magic-select-title = Выберите заклинание:
 cult-blood-magic-title = Кровавая магия
 cult-blood-magic-info = Выберите заклинание для подготовки. Стоит 20 HP и занимает 10 секунд.
 cult-blood-magic-swap-title = Замена заклинания

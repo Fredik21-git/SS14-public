@@ -1,5 +1,6 @@
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
+using Robust.Shared.ViewVariables;
 
 namespace Content.Shared.Imperial.Cult.Components;
 
@@ -43,11 +44,6 @@ public sealed partial class CultRuneComponent : Component
     public bool Concealed;
 
     /// <summary>
-    /// Сколько культистов сейчас стоит на руне (обновляется сервером).
-    /// </summary>
-    public int InvokersOnRune;
-
-    /// <summary>
     /// Минимум культистов для активации.
     /// </summary>
     [DataField]
@@ -65,4 +61,10 @@ public sealed partial class CultRuneComponent : Component
     /// </summary>
     [DataField]
     public string? DestructionState;
+
+    /// <summary>
+    /// Сколько культистов сейчас стоит на руне (обновляется только сервером).
+    /// </summary>
+    [ViewVariables]
+    public int InvokersOnRune;
 }

@@ -1,2 +1,2 @@
 blob-title = Blob
-blob-description = Draft preset for the future Blob antagonist. Full gameplay is not wired yet.
+blob-description = One crew member becomes the Blob host and begins turning the station into a spreading mass. The crew must find and destroy the core before the infestation takes over.

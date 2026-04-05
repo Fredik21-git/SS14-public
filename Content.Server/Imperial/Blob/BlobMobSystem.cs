@@ -13,6 +13,7 @@ using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mind.Components;
 using Content.Shared.NPC.Components;
+using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
 using Content.Shared.Radio;
 using Content.Shared.Radio.Components;
@@ -37,6 +38,8 @@ namespace Content.Server.Imperial.Blob;
 
 public sealed class BlobMobSystem : EntitySystem
 {
+    private static readonly ProtoId<NpcFactionPrototype> BlobFaction = "Blob";
+
     private const string BlobRadioChannel = "Blob";
     private const string BlobHiveChannel = "BlobHive";
     private const float BlobTileAllyHealInterval = 1f;
@@ -157,7 +160,7 @@ public sealed class BlobMobSystem : EntitySystem
 
     private void OnBlobFactionSpoke(EntityUid uid, NpcFactionMemberComponent component, ref EntitySpokeEvent args)
     {
-        if (!_npcFaction.IsMember((uid, component), "Blob"))
+        if (!_npcFaction.IsMember((uid, component), BlobFaction))
             return;
 
         if (HasComp<BlobMobComponent>(uid) || HasComp<BlobOvermindComponent>(uid) || HasComp<BlobMouseComponent>(uid))
@@ -536,7 +539,7 @@ public sealed class BlobMobSystem : EntitySystem
     {
         if (blobId is not { } owner)
         {
-            return _npcFaction.IsMember(entity, "Blob") ||
+                 return _npcFaction.IsMember(entity, BlobFaction) ||
                    HasComp<BlobMouseComponent>(entity) ||
                    HasComp<BlobOvermindComponent>(entity) ||
                    HasComp<BlobOvermindControllerComponent>(entity) ||

@@ -27,7 +27,6 @@ using Content.Shared.Inventory.Events;
 using Content.Shared.Radio;
 using Content.Shared.Radio.Components;
 using Content.Shared.Mind.Components;
-using Content.Server.Imperial.Cult.Components;
 using Content.Server.Mind;
 using Content.Server.Popups;
 using Content.Server.Roles;
@@ -49,6 +48,7 @@ using Content.Shared.Damage.Systems;
 using Content.Shared.Eye;
 using Content.Shared.StatusEffect;
 using Content.Shared.Stunnable;
+using Content.Shared.Body;
 using Content.Shared.Body.Components;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.Chemistry.Components;
@@ -96,10 +96,10 @@ public sealed class CultSystem : EntitySystem
     private static readonly TimeSpan CultReagentCheckInterval = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan HolyWaterDeconversionDelay = TimeSpan.FromSeconds(150);
     private static readonly FixedPoint2 HolyWaterDeconversionThreshold = FixedPoint2.New(40);
+    private static readonly ProtoId<TagPrototype> WallTag = "Wall";
 
     [Dependency] private readonly ActionsSystem _actions = default!;
     [Dependency] private readonly AlertLevelSystem _alertLevel = default!;
-    [Dependency] private readonly AntagSelectionSystem _antag = default!;
     [Dependency] private readonly ChatSystem _chat = default!;
     [Dependency] private readonly CultRuleSystem _cultRule = default!;
     [Dependency] private readonly InventorySystem _inventory = default!;
@@ -108,10 +108,8 @@ public sealed class CultSystem : EntitySystem
     [Dependency] private readonly DoAfterSystem _doAfter = default!;
     [Dependency] private readonly EmpSystem _emp = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
-    [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly INetManager _netMan = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly MindSystem _mind = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
@@ -131,7 +129,7 @@ public sealed class CultSystem : EntitySystem
     [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
     [Dependency] private readonly SharedStackSystem _stack = default!;
     [Dependency] private readonly StationSystem _station = default!;
-    [Dependency] private readonly AccessReaderSystem _accessReader = default!;
+    [Dependency] private readonly SharedVisualBodySystem _visualBody = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
     [Dependency] private readonly TagSystem _tagSystem = default!;
     [Dependency] private readonly CultShieldSystem _cultShield = default!;
@@ -341,7 +339,7 @@ public sealed class CultSystem : EntitySystem
 
             cultist.NextReagentCheck = now + CultReagentCheckInterval;
 
-            if (!_solutionContainer.ResolveSolution(uid, bloodstream.ChemicalSolutionName, ref bloodstream.ChemicalSolution, out var chemicalSolution))
+            if (!_solutionContainer.ResolveSolution(uid, bloodstream.BloodSolutionName, ref bloodstream.BloodSolution, out var chemicalSolution))
                 continue;
 
             var holyWaterAmount = chemicalSolution.GetTotalPrototypeQuantity("Holywater");
@@ -396,7 +394,7 @@ public sealed class CultSystem : EntitySystem
 
                 // Ищем ближайшую некультовую стену для конвертации
                 if (wallToConvert == null
-                    && _tagSystem.HasTag(entity, "Wall")
+                    && _tagSystem.HasTag(entity, WallTag)
                     && MetaData(entity).EntityPrototype?.ID != "WallCult")
                 {
                     wallToConvert = entity;
@@ -607,17 +605,46 @@ public sealed class CultSystem : EntitySystem
         }
 
         // Восстанавливаем оригинальный цвет глаз
-        if (cultist.OriginalEyeColor.HasValue && TryComp<HumanoidAppearanceComponent>(uid, out var humanoidRestore))
-        {
-            humanoidRestore.EyeColor = cultist.OriginalEyeColor.Value;
-            Dirty(uid, humanoidRestore);
-        }
+        if (cultist.OriginalEyeColor.HasValue)
+            TrySetEntityEyeColor(uid, cultist.OriginalEyeColor.Value);
 
         if (cultist.BuiHolder.HasValue && Exists(cultist.BuiHolder.Value))
             QueueDel(cultist.BuiHolder.Value);
 
+        // Убираем ореол, если был прицеплен как дочерняя сущность.
+        if (TryComp<TransformComponent>(uid, out var xform))
+        {
+            var children = xform.ChildEnumerator;
+            while (children.MoveNext(out var child))
+            {
+                if (MetaData(child).EntityPrototype?.ID == "CultHaloEffect")
+                    QueueDel(child);
+            }
+        }
+
+        // Убираем роль/цели культиста из разума.
+        if (_mind.TryGetMind(uid, out var mindId, out var mind))
+        {
+            _role.MindRemoveRole<CultistRoleComponent>(mindId);
+
+            var removableObjectives = new HashSet<string>
+            {
+                "CultSacrificeTargetsObjective",
+                "CultSummonNarSieObjective",
+            };
+
+            for (var i = mind.Objectives.Count - 1; i >= 0; i--)
+            {
+                var objective = mind.Objectives[i];
+                var objectiveProto = MetaData(objective).EntityPrototype?.ID;
+                if (objectiveProto != null && removableObjectives.Contains(objectiveProto))
+                    _mind.TryRemoveObjective(mindId, mind, i);
+            }
+        }
+
         RemComp<IntrinsicRadioReceiverComponent>(uid);
         RemComp<ActiveRadioComponent>(uid);
+        RemComp<ShowAntagIconsComponent>(uid);
         RemComp<CultistComponent>(uid);
         _popup.PopupEntity(Loc.GetString("cult-deconverted"), uid, uid, PopupType.Large);
     }
@@ -1535,7 +1562,12 @@ public sealed class CultSystem : EntitySystem
         _chat.TrySendInGameICMessage(caster, Loc.GetString("cult-incantation-shackles"), InGameICChatType.Whisper, false, ignoreActionBlocker: true);
 
         var shackles = Spawn("ShadowShackles", Transform(target).Coordinates);
-        _cuffs.TryAddNewCuffs(target, caster, shackles);
+        if (!_cuffs.TryAddNewCuffs(target, caster, shackles))
+        {
+            QueueDel(shackles);
+            return false;
+        }
+
         // Немота 12 сек
         if (TryComp<StatusEffectsComponent>(target, out var targetStatusEffects))
         {
@@ -1944,7 +1976,7 @@ public sealed class CultSystem : EntitySystem
                 NarSieRitualMusic,
                 Filter.Broadcast(),
                 true,
-                AudioParams.Default.WithLoop(true).WithVolume(-4f));
+                AudioParams.Default.WithLoop(false).WithVolume(-4f));
             cultistComp.ActiveNarSieRitualAudio = ritualAudio?.Entity;
         }
 
@@ -1967,14 +1999,8 @@ public sealed class CultSystem : EntitySystem
 
     private void EndNarSieRitual(EntityUid cultist)
     {
-        if (TryComp<CultistComponent>(cultist, out var cultistComp)
-            && cultistComp.ActiveNarSieRitualAudio.HasValue
-            && Exists(cultistComp.ActiveNarSieRitualAudio.Value))
-        {
-            _audio.SetState(cultistComp.ActiveNarSieRitualAudio.Value, AudioState.Stopped);
-            QueueDel(cultistComp.ActiveNarSieRitualAudio.Value);
+        if (TryComp<CultistComponent>(cultist, out var cultistComp))
             cultistComp.ActiveNarSieRitualAudio = null;
-        }
 
         if (!_activeNarSieBarriers.Remove(cultist, out var barriers))
             return;
@@ -1998,19 +2024,10 @@ public sealed class CultSystem : EntitySystem
         return false;
     }
 
-    private static string GetSpellLocKey(string spellId) => spellId switch
-    {
-        "ActionCultStun"               => "cult-spell-stun",
-        "ActionCultShackles"           => "cult-spell-shackles",
-        "ActionCultTeleport"           => "cult-spell-teleport",
-        "ActionCultEmp"                => "cult-spell-emp",
-        "ActionCultTwistedConstruction"=> "cult-spell-twisted-construction",
-        "ActionCultSummonDagger"       => "cult-spell-summon-dagger",
-        "ActionCultSummonEquipment"    => "cult-spell-summon-equipment",
-        "ActionCultConcealPresence"    => "cult-spell-conceal-presence",
-        "ActionCultBloodRites"         => "cult-spell-blood-rites",
-        _                              => "cult-spell-unknown",
-    };
+    private static string GetSpellLocKey(string spellId) =>
+        CultSpellLocKeys.Mapping.TryGetValue(spellId, out var key)
+            ? key
+            : "cult-spell-unknown";
 
     public void DealSelfDamage(EntityUid uid, float amount)
     {
@@ -2096,11 +2113,10 @@ public sealed class CultSystem : EntitySystem
                 if (!comp.RedEyes)
                 {
                     comp.RedEyes = true;
-                    if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+                    if (TryGetEntityEyeColor(uid, out var eyeColor))
                     {
-                        comp.OriginalEyeColor ??= humanoid.EyeColor;
-                        humanoid.EyeColor = Color.Red;
-                        Dirty(uid, humanoid);
+                        comp.OriginalEyeColor ??= eyeColor;
+                        TrySetEntityEyeColor(uid, Color.Red);
                     }
                 }
 
@@ -2131,11 +2147,10 @@ public sealed class CultSystem : EntitySystem
                     Dirty(uid, comp);
 
                     // Меняем цвет глаз на красный
-                    if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+                    if (TryGetEntityEyeColor(uid, out var eyeColor))
                     {
-                        comp.OriginalEyeColor = humanoid.EyeColor;
-                        humanoid.EyeColor = Color.Red;
-                        Dirty(uid, humanoid);
+                        comp.OriginalEyeColor = eyeColor;
+                        TrySetEntityEyeColor(uid, Color.Red);
                     }
 
                     anyNew = true;
@@ -2162,11 +2177,38 @@ public sealed class CultSystem : EntitySystem
         if (_inventory.TryGetSlotEntity(uid, "mask", out _))
             return false;
 
-        if (!TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+        if (!TryComp<HideableHumanoidLayersComponent>(uid, out var humanoid))
             return true;
 
-        return !humanoid.HiddenLayers.ContainsKey(HumanoidVisualLayers.Eyes)
-            && !humanoid.HiddenLayers.ContainsKey(HumanoidVisualLayers.Head);
+        var hiddenLayers = humanoid.HiddenLayers;
+        return !hiddenLayers.ContainsKey(HumanoidVisualLayers.Eyes)
+            && !hiddenLayers.ContainsKey(HumanoidVisualLayers.Head);
+    }
+
+    private bool TryGetEntityEyeColor(EntityUid uid, out Color eyeColor)
+    {
+        eyeColor = default;
+
+        if (!_visualBody.TryGatherMarkingsData(uid, null, out var profiles, out _, out _))
+            return false;
+
+        foreach (var profile in profiles.Values)
+        {
+            eyeColor = profile.EyeColor;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TrySetEntityEyeColor(EntityUid uid, Color eyeColor)
+    {
+        if (!_visualBody.TryGatherMarkingsData(uid, null, out var profiles, out _, out _))
+            return false;
+
+        var coloredProfiles = profiles.ToDictionary(pair => pair.Key, pair => pair.Value with { EyeColor = eyeColor });
+        _visualBody.ApplyProfiles(uid, coloredProfiles);
+        return true;
     }
 
     private void OnBuiHolderRangeCheck(EntityUid uid, CultBuiHolderComponent comp, ref BoundUserInterfaceCheckRangeEvent args)

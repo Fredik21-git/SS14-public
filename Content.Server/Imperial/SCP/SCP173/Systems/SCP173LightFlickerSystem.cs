@@ -86,14 +86,17 @@ public sealed class SCP173LightFlickerSystem : EntitySystem
     private void ApplyLightState(Entity<SCP173LightFlickerComponent> ent, bool turnOn)
     {
         var origin = _transform.GetWorldPosition(ent);
-        var map = Transform(ent).MapID;
+        if (!TryComp(ent, out TransformComponent? entXform))
+            return;
+
+        var map = entXform.MapID;
 
         foreach (var lightUid in _lookup.GetEntitiesInRange(ent, ent.Comp.Radius, LookupFlags.Dynamic | LookupFlags.Static))
         {
             if (!TryComp<PointLightComponent>(lightUid, out var pointLight))
                 continue;
 
-            if (!TryComp<TransformComponent>(lightUid, out var lightXform) || lightXform.MapID != map)
+            if (!TryComp(lightUid, out TransformComponent? lightXform) || lightXform.MapID != map)
                 continue;
 
             var distance = (_transform.GetWorldPosition(lightUid) - origin).Length();

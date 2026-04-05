@@ -1,9 +1,11 @@
 using Content.Shared.Imperial.Cult.Components;
 using Content.Shared.Doors.Components;
+using Content.Shared.Players;
 using Robust.Client.GameObjects;
 using Robust.Client.Player;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
+using Robust.Shared.Player;
 
 namespace Content.Client.Imperial.Cult;
 
@@ -38,6 +40,10 @@ public sealed class CultConcealmentSystem : EntitySystem
         // Когда игрок надевает/снимает повязку фанатика — обновляем всё
         SubscribeLocalEvent<CanSeeConcealedComponent, ComponentStartup>(OnCanSeeStartup);
         SubscribeLocalEvent<CanSeeConcealedComponent, ComponentShutdown>(OnCanSeeShutdown);
+
+        // Когда меняется локально прикреплённая сущность, пересчитываем видимость.
+        SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnLocalPlayerAttached);
+        SubscribeLocalEvent<LocalPlayerDetachedEvent>(OnLocalPlayerDetached);
     }
 
     private void OnRuneHandleState(EntityUid uid, CultRuneComponent comp, ref AfterAutoHandleStateEvent args)
@@ -74,6 +80,16 @@ public sealed class CultConcealmentSystem : EntitySystem
     {
         if (uid == _player.LocalSession?.AttachedEntity)
             RefreshAll();
+    }
+
+    private void OnLocalPlayerAttached(LocalPlayerAttachedEvent args)
+    {
+        RefreshAll();
+    }
+
+    private void OnLocalPlayerDetached(LocalPlayerDetachedEvent args)
+    {
+        RefreshAll();
     }
 
     /// <summary>

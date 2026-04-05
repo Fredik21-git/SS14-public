@@ -7,7 +7,7 @@
   parent: BaseGameRule
   components:
   - type: GameRule
-    minPlayers: 25
+    minPlayers: 2
   - type: CultRule
   - type: AntagSelection
     selectionTime: IntraPlayerSpawn

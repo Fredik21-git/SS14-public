@@ -5,6 +5,7 @@ using Content.Shared.Chemistry.Components;
 using Content.Shared.Chemistry.EntitySystems;
 using Content.Shared.FixedPoint;
 using Content.Shared.Imperial.Xenobiology.Components;
+using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
 using Content.Shared.Popups;
 using Robust.Server.GameObjects;
@@ -33,6 +34,8 @@ namespace Content.Server.Imperial.Xenobiology.Systems;
 /// </summary>
 public sealed class XenoSlimeExtractSystem : EntitySystem
 {
+    private static readonly ProtoId<NpcFactionPrototype> SimpleHostileFaction = "SimpleHostile";
+
     [Dependency] private readonly SharedSolutionContainerSystem _solutions  = default!;
     [Dependency] private readonly SharedPopupSystem             _popup      = default!;
     [Dependency] private readonly FirestarterSystem             _fire       = default!;
@@ -229,7 +232,7 @@ public sealed class XenoSlimeExtractSystem : EntitySystem
                     slime.Comp.HungerPercent = 0f;
                     // Добавляем агрессивную фракцию — слайм атакует игрока
                     // XenoSlimeFaction остаётся — слайм также атакует обезьян
-                    _factionSys.AddFaction(slime.Owner, "SimpleHostile", dirty: true);
+                    _factionSys.AddFaction(slime.Owner, SimpleHostileFaction, dirty: true);
                 }
                 QueueDel(uid);
                 break;

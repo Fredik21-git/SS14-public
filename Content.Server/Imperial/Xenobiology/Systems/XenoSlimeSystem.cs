@@ -45,11 +45,9 @@ public sealed class XenoSlimeSystem : EntitySystem
     [Dependency] private readonly EntityLookupSystem    _lookup     = default!;
     [Dependency] private readonly TransformSystem       _transform  = default!;
     [Dependency] private readonly IRobustRandom         _random     = default!;
-    [Dependency] private readonly NpcFactionSystem      _factionSys = default!;
     [Dependency] private readonly HTNSystem             _htn        = default!;
     [Dependency] private readonly SharedContainerSystem _containers = default!;
     [Dependency] private readonly SharedDoAfterSystem   _doAfter    = default!;
-    [Dependency] private readonly SolutionContainerSystem _solutionSys = default!;
 
     // ─── прототипы по цвету (индекс = (int)XenoSlimeColor) ─────────────────
     private static readonly string[] SmallProtos =

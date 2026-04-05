@@ -42,8 +42,12 @@
   - type: MachineBoard
     prototype: BSAFrontPartUnfinished
     stackRequirements:
-      Plasteel: 15
-      Steel: 10
+      Uranium: 1
+      PlasmaGlass: 15
+      Plasma: 30
+      Steel: 120
+      Plasteel: 120
+      Plastic: 1
 
 # ── Back Part Board ──
 
@@ -58,5 +62,9 @@
   - type: MachineBoard
     prototype: BSABackPartUnfinished
     stackRequirements:
-      Plasteel: 15
-      Steel: 10
+      Uranium: 30
+      PlasmaGlass: 30
+      Plasma: 30
+      Steel: 90
+      Plasteel: 40
+      Plastic: 120

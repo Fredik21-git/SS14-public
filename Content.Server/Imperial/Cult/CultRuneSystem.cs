@@ -1,10 +1,10 @@
 using Content.Server.Actions;
+using System.Linq;
 using Content.Server.GameTicking.Rules.Components;
 using Content.Server.GameTicking.Rules;
 using Content.Server.Imperial.Cult.Components;
 using Content.Shared.Imperial.Cult.Components;
 using Content.Shared.Imperial.Cult;
-using Content.Server.Body.Systems;
 using Content.Server.Damage.Systems;
 using Content.Server.Explosion.EntitySystems;
 using Content.Server.Mind;
@@ -17,6 +17,7 @@ using Content.Shared.Damage;
 using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Electrocution;
+using Content.Shared.Gibbing;
 using Content.Shared.Ghost;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs.Systems;
@@ -55,22 +56,17 @@ public sealed class CultRuneSystem : EntitySystem
     [Dependency] private readonly ActionsSystem _actions = default!;
     [Dependency] private readonly CultSystem _cult = default!;
     [Dependency] private readonly CultRuleSystem _cultRule = default!;
-    [Dependency] private readonly BodySystem _bodySystem = default!;
     [Dependency] private readonly DamageableSystem _damage = default!;
-    [Dependency] private readonly ExplosionSystem _explosion = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly GibbingSystem _gibbing = default!;
     [Dependency] private readonly MindSystem _mind = default!;
     [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly RejuvenateSystem _rejuvenate = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedPointLightSystem _pointLight = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
     [Dependency] private readonly StaminaSystem _stamina = default!;
-    [Dependency] private readonly StealthSystem _stealth = default!;
     [Dependency] private readonly StationSystem _station = default!;
-    [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
 
     private bool IsCultAligned(EntityUid uid)
@@ -87,6 +83,8 @@ public sealed class CultRuneSystem : EntitySystem
         SubscribeLocalEvent<CultRuneComponent, CultSpiritRealmChoiceMessage>(OnSpiritRealmChoice);
         SubscribeLocalEvent<CultDarkSpiritComponent, CultDarkSpiritReturnActionEvent>(OnDarkSpiritReturn);
         SubscribeLocalEvent<CultDarkSpiritComponent, CultDarkSpiritCommuneActionEvent>(OnDarkSpiritCommune);
+        SubscribeLocalEvent<CultistComponent, MoveEvent>(OnCultistMove);
+        SubscribeLocalEvent<CultRuneComponent, EntityTerminatingEvent>(OnRuneTerminating);
     }
 
     public override void Update(float frameTime)
@@ -227,6 +225,53 @@ public sealed class CultRuneSystem : EntitySystem
         }
     }
 
+    private void OnCultistMove(EntityUid uid, CultistComponent comp, ref MoveEvent args)
+    {
+        if (!comp.OnEmpowerRune)
+            return;
+
+        var stillOnEmpower = false;
+        var pos = _xform.GetMapCoordinates(uid);
+
+        var query = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
+        while (query.MoveNext(out var runeUid, out var rune, out var xform))
+        {
+            if (rune.RuneType != CultRuneType.Empowering)
+                continue;
+
+            var runePos = _xform.GetMapCoordinates(runeUid, xform);
+            if (runePos.MapId != pos.MapId)
+                continue;
+
+            if ((runePos.Position - pos.Position).Length() <= 0.75f)
+            {
+                stillOnEmpower = true;
+                break;
+            }
+        }
+
+        if (!stillOnEmpower)
+            comp.OnEmpowerRune = false;
+    }
+
+    private void OnRuneTerminating(EntityUid uid, CultRuneComponent comp, ref EntityTerminatingEvent args)
+    {
+        if (comp.RuneType != CultRuneType.Empowering)
+            return;
+
+        var query = EntityQueryEnumerator<CultistComponent>();
+        while (query.MoveNext(out var cultistUid, out var cultistComp))
+        {
+            if (!cultistComp.OnEmpowerRune)
+                continue;
+
+            var pos = _xform.GetMapCoordinates(cultistUid);
+            var runePos = _xform.GetMapCoordinates(uid);
+            if (pos.MapId == runePos.MapId && (runePos.Position - pos.Position).Length() <= 0.75f)
+                cultistComp.OnEmpowerRune = false;
+        }
+    }
+
     private void ActivateOfferingRune(EntityUid uid, CultRuneComponent rune, EntityUid invoker)
     {
         // Ищем кого-то на руне (кого тащат или кто стоит рядом)
@@ -294,7 +339,7 @@ public sealed class CultRuneSystem : EntitySystem
 
         // Гибируем жертву (части тела, мозг, вещи остаются на полу)
         var victimName = MetaData(victim).EntityName;
-        _bodySystem.GibBody(victim, gibOrgans: true);
+        _gibbing.Gib(victim);
 
         _audio.PlayPvs("/Audio/Effects/gib.ogg", runeUid);
         _popup.PopupEntity(Loc.GetString("cult-sacrifice-complete", ("name", victimName)), invoker, invoker);
@@ -381,17 +426,37 @@ public sealed class CultRuneSystem : EntitySystem
     // Возвращает все барьерные руны, соединённые цепью (в радиусе 3 тайлов)
     private List<EntityUid> FindBarrierChain(EntityUid uid)
     {
-        var result = new List<EntityUid> { uid };
-        var pos = _xform.GetMapCoordinates(uid);
-        var query = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
-        while (query.MoveNext(out var runeUid, out var r, out var xform))
+        var seedCoords = _xform.GetMapCoordinates(uid);
+        var visited = new HashSet<EntityUid> { uid };
+        var queue = new Queue<EntityUid>();
+        queue.Enqueue(uid);
+
+        while (queue.TryDequeue(out var current))
         {
-            if (runeUid == uid) continue;
-            if (r.RuneType != CultRuneType.Barrier) continue;
-            if ((_xform.GetMapCoordinates(runeUid, xform).Position - pos.Position).Length() > 3f) continue;
-            result.Add(runeUid);
+            var currentCoords = _xform.GetMapCoordinates(current);
+
+            var query = EntityQueryEnumerator<CultRuneComponent, TransformComponent>();
+            while (query.MoveNext(out var runeUid, out var runeComp, out var xform))
+            {
+                if (visited.Contains(runeUid))
+                    continue;
+
+                if (runeComp.RuneType != CultRuneType.Barrier)
+                    continue;
+
+                var candidateCoords = _xform.GetMapCoordinates(runeUid, xform);
+                if (candidateCoords.MapId != seedCoords.MapId)
+                    continue;
+
+                if ((candidateCoords.Position - currentCoords.Position).Length() > 3f)
+                    continue;
+
+                visited.Add(runeUid);
+                queue.Enqueue(runeUid);
+            }
         }
-        return result;
+
+        return visited.ToList();
     }
 
     private void ActivateSummoningRune(EntityUid uid, CultRuneComponent rune, EntityUid invoker)
@@ -444,6 +509,7 @@ public sealed class CultRuneSystem : EntitySystem
             if (eXform.MapID != pos.MapId) continue;
             if ((eXform.WorldPosition - pos.Position).Length() > 8f) continue;
             if (IsCultAligned(eUid)) continue;
+            if (!TryComp<MobStateComponent>(eUid, out var mobState) || mobState.CurrentState == MobState.Dead) continue;
             if (!HasComp<DamageableComponent>(eUid)) continue;
             targets.Add(eUid);
         }

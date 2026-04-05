@@ -97,7 +97,8 @@ public sealed class BlobLauncherSystem : EntitySystem
             if (!_damage.TryChangeDamage(target, damage, true, origin: uid))
                 continue;
 
-            Spawn("BlobAttackEffect", Transform(target).Coordinates);
+            if (TryComp(target, out TransformComponent? targetXform))
+                Spawn("BlobAttackEffect", targetXform.Coordinates);
             _audio.PlayPvs(BlobAttackSound, target);
             ApplySecondaryEffects(target, xform.Coordinates, blobId, chemical);
             Dirty(uid, launcher);
@@ -151,7 +152,10 @@ public sealed class BlobLauncherSystem : EntitySystem
     private void ApplySoriumKnockback(EntityCoordinates sourceCoordinates, EntityUid targetUid, float distance)
     {
         var sourceCoords = _transform.ToMapCoordinates(sourceCoordinates);
-        var targetCoords = _transform.ToMapCoordinates(Transform(targetUid).Coordinates);
+        if (!TryComp(targetUid, out TransformComponent? targetXform))
+            return;
+
+        var targetCoords = _transform.ToMapCoordinates(targetXform.Coordinates);
         if (sourceCoords.MapId != targetCoords.MapId)
             return;
 
@@ -180,7 +184,7 @@ public sealed class BlobLauncherSystem : EntitySystem
             if (!TryComp<MobStateComponent>(entity, out var mobState) || mobState.CurrentState == Shared.Mobs.MobState.Dead)
                 continue;
 
-            if (!TryComp<DamageableComponent>(entity, out _) || !TryComp<TransformComponent>(entity, out var xform))
+            if (!TryComp<DamageableComponent>(entity, out _) || !TryComp(entity, out TransformComponent? xform))
                 continue;
 
             var targetCoords = _transform.ToMapCoordinates(xform.Coordinates);

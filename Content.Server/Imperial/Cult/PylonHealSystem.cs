@@ -54,19 +54,39 @@ public sealed class PylonHealSystem : EntitySystem
 
                     var bruteTypes = new HashSet<string> { "Blunt", "Slash", "Piercing" };
                     var burnTypes = new HashSet<string> { "Heat", "Shock", "Cold", "Caustic" };
+                    var bruteCount = 0;
+                    var burnCount = 0;
+                    var hasBloodloss = false;
+
+                    foreach (var (dt, dmg) in damageable.Damage.DamageDict)
+                    {
+                        if (dmg <= FixedPoint2.Zero)
+                            continue;
+
+                        if (bruteTypes.Contains(dt))
+                            bruteCount++;
+                        else if (burnTypes.Contains(dt))
+                            burnCount++;
+                        else if (dt == "Bloodloss")
+                            hasBloodloss = true;
+                    }
+
                     var heal = new DamageSpecifier();
                     foreach (var (dt, dmg) in damageable.Damage.DamageDict)
                     {
                         if (dmg <= FixedPoint2.Zero) continue;
                         if (bruteTypes.Contains(dt))
-                            heal.DamageDict[dt] = -(FixedPoint2)pylon.HealBrute;
+                            heal.DamageDict[dt] = -(FixedPoint2)(pylon.HealBrute / Math.Max(1, bruteCount));
                         else if (burnTypes.Contains(dt))
-                            heal.DamageDict[dt] = -(FixedPoint2)pylon.HealBurn;
+                            heal.DamageDict[dt] = -(FixedPoint2)(pylon.HealBurn / Math.Max(1, burnCount));
                         else if (dt == "Bloodloss")
-                            heal.DamageDict[dt] = -(FixedPoint2)pylon.HealBloodloss;
+                            heal.DamageDict[dt] = hasBloodloss ? -(FixedPoint2)pylon.HealBloodloss : FixedPoint2.Zero;
                     }
-                    if (!heal.Empty)
-                        _damage.TryChangeDamage(target, heal, ignoreResistances: true, interruptsDoAfters: false);
+
+                    if (heal.Empty)
+                        continue;
+
+                    _damage.TryChangeDamage(target, heal, ignoreResistances: true, interruptsDoAfters: false);
                     _popup.PopupEntity(Loc.GetString("cult-pylon-heal"), target, target, PopupType.Small);
                     anyHealed = true;
                 }

@@ -47,7 +47,7 @@ public sealed class ContractorSystem : EntitySystem
     private const string ContractorCurrency = "ContractorRep";
     private const string ContractorCandidateRole = "MindRoleContractorCandidate";
     private const string ContractorRole = "MindRoleContractor";
-    private const string PirateMapPath = "/Maps/Shuttles/pirate.yml";
+    private const string PirateMapPath = "/Maps/Shuttles/contractor_prison.yml";
     private const string PrisonLocker = "LockerPrisoner";
     private const string PrisonUniform = "ClothingUniformJumpsuitPrisoner";
     private const string PrisonShoes = "ClothingShoesColorOrange";
@@ -55,7 +55,7 @@ public sealed class ContractorSystem : EntitySystem
     private const string FalsefirePortalPrototype = "ContractorFalsefirePortal";
     private const string ContractorPinpointerMarkerPrototype = "ContractorPinpointerMarker";
 
-    private const float CandidateChance = 0.6f;
+    private const float CandidateChance = 1.0f;
     private const float DeliveryRange = 2f;
     private const int OfferCapacity = 6;
     private const float PinpointerMinOffset = 2.5f;
@@ -845,7 +845,7 @@ public sealed class ContractorSystem : EntitySystem
 
         var output = new List<EntityUid>();
         var stationUid = _station.GetOwningStation(contractorOwner);
-        var query = EntityQueryEnumerator<HumanoidAppearanceComponent, TransformComponent>();
+        var query = EntityQueryEnumerator<HumanoidProfileComponent, TransformComponent>();
         while (query.MoveNext(out var targetUid, out _, out var xform))
         {
             if (targetUid == contractorOwner || taken.Contains(targetUid) || blocked.Contains(targetUid))

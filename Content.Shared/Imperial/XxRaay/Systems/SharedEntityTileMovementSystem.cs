@@ -11,6 +11,7 @@ using Content.Shared.Maps;
 using Content.Shared.Movement.Components;
 using Content.Shared.Movement.Events;
 using Content.Shared.Movement.Systems;
+using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
 using Content.Shared.Physics;
 using Robust.Shared.GameStates;
@@ -21,6 +22,7 @@ using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Controllers;
 using Robust.Shared.Physics.Systems;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Timing;
 
@@ -28,6 +30,8 @@ namespace Content.Shared.Imperial.XxRaay.Systems;
 
 public sealed class SharedEntityTileMovementSystem : VirtualController
 {
+    private static readonly ProtoId<NpcFactionPrototype> BlobFaction = "Blob";
+
     [Dependency] private readonly IGameTiming _gameTiming = default!;
     [Dependency] private readonly SharedMapSystem _mapSystem = default!;
     [Dependency] private readonly SharedPhysicsSystem _physicsSystem = default!;
@@ -396,7 +400,7 @@ public sealed class SharedEntityTileMovementSystem : VirtualController
         if (TryComp<BlobOvermindComponent>(mover, out var overmind) && overmind.BlobId == blobId)
             return true;
 
-        return _npcFaction.IsMember(mover, "Blob");
+        return _npcFaction.IsMember(mover, BlobFaction);
     }
 
     private Vector2 GetDirectionFromButtons(MoveButtons buttons)

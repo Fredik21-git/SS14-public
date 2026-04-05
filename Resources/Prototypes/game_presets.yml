@@ -76,6 +76,36 @@
     - BasicRoundstartVariation
 
 - type: gamePreset
+  id: AllAtOncePlus
+  alias:
+  - allplus
+  - all+
+  - aao+
+  name: all-at-once-plus-title
+  description: all-at-once-plus-description
+  showInVote: false
+  rules:
+    - Nukeops
+    - Traitor
+    - Revolutionary
+    - Zombie
+    - SyndieBorgroundstart
+    - Pirates
+    - Wizard
+    - Vampire
+    - Xenoborgs
+    - Blob
+    - Cult
+    - BloodBrother
+    - BasicStationEventScheduler
+    - KesslerSyndromeScheduler
+    - MeteorSwarmMildScheduler
+    - MeteorSwarmScheduler
+    - RampingStationEventScheduler
+    - SpaceTrafficControlEventScheduler
+    - BasicRoundstartVariation
+
+- type: gamePreset
   id: Extended
   alias:
   - extended
@@ -217,6 +247,21 @@
   - DummyNonAntagChance
   - BloodBrother
   - SubGamemodesRuleNoWizard
+  - BasicStationEventScheduler
+  - MeteorSwarmScheduler
+  - SpaceTrafficControlEventScheduler
+  - BasicRoundstartVariation
+
+- type: gamePreset
+  id: Cult
+  alias:
+    - cult
+    - cultists
+  name: cult-preset-title
+  description: cult-preset-description
+  showInVote: false
+  rules:
+  - Cult
   - BasicStationEventScheduler
   - MeteorSwarmScheduler
   - SpaceTrafficControlEventScheduler

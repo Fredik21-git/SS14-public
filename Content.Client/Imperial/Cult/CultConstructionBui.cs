@@ -14,6 +14,10 @@ public sealed class CultConstructionBui : BoundUserInterface
     [ViewVariables]
     private CultConstructionSelectWindow? _window;
 
+    private IPrototypeManager? _protoManager;
+    private ConstructionSystem? _constructionSystem;
+    private IPlacementManager? _placementManager;
+
     public CultConstructionBui(EntityUid owner, Enum uiKey) : base(owner, uiKey)
     {
     }
@@ -22,21 +26,23 @@ public sealed class CultConstructionBui : BoundUserInterface
     {
         base.Open();
 
+        _protoManager = IoCManager.Resolve<IPrototypeManager>();
+        _constructionSystem = IoCManager.Resolve<IEntitySystemManager>().GetEntitySystem<ConstructionSystem>();
+        _placementManager = IoCManager.Resolve<IPlacementManager>();
+
         _window = this.CreateWindow<CultConstructionSelectWindow>();
 
         _window.OnStructureSelected += constructionId =>
         {
-            var protoManager = IoCManager.Resolve<IPrototypeManager>();
-            if (!protoManager.TryIndex<ConstructionPrototype>(constructionId, out var proto))
+            if (_protoManager == null || _constructionSystem == null || _placementManager == null)
                 return;
 
-            var entSysMan = IoCManager.Resolve<IEntitySystemManager>();
-            var constructionSystem = entSysMan.GetEntitySystem<ConstructionSystem>();
-            var placementManager = IoCManager.Resolve<IPlacementManager>();
+            if (!_protoManager.TryIndex<ConstructionPrototype>(constructionId, out var proto))
+                return;
 
-            placementManager.BeginPlacing(
+            _placementManager.BeginPlacing(
                 new PlacementInformation { IsTile = false, PlacementOption = proto.PlacementMode },
-                new ConstructionPlacementHijack(constructionSystem, proto));
+                new ConstructionPlacementHijack(_constructionSystem, proto));
         };
     }
 }

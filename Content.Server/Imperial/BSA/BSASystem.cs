@@ -27,7 +27,6 @@ public sealed class BSASystem : EntitySystem
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly MultipartMachineSystem _multipartMachine = default!;
     [Dependency] private readonly IChatManager _chatManager = default!;

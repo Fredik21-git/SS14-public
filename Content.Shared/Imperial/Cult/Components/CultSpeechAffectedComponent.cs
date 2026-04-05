@@ -1,3 +1,5 @@
+using Robust.Shared.ViewVariables;
+
 namespace Content.Shared.Imperial.Cult.Components;
 
 /// <summary>
@@ -8,8 +10,10 @@ namespace Content.Shared.Imperial.Cult.Components;
 public sealed partial class CultSpeechAffectedComponent : Component
 {
     /// <summary>Время, когда эффект заканчивается.</summary>
+    [ViewVariables]
     public TimeSpan ExpiresAt;
 
     /// <summary>Время следующей принудительной культовой фразы.</summary>
+    [ViewVariables]
     public TimeSpan NextPhrase;
 }

@@ -162,7 +162,7 @@ public sealed class XenoSlimeCrusherSystem : EntitySystem
 
     private void ScanForSlimes(EntityUid uid, XenoSlimeCrusherComponent crusher)
     {
-        if (!TryComp<TransformComponent>(uid, out var xform))
+        if (!TryComp(uid, out TransformComponent? xform))
             return;
 
         var found = new HashSet<Entity<XenoSlimeComponent>>();
@@ -212,7 +212,10 @@ public sealed class XenoSlimeCrusherSystem : EntitySystem
         };
 
         var totalCount = baseCount + slimeComp.SteroidCount;
-        var coords  = Transform(crusher).Coordinates;
+        if (!TryComp(crusher, out TransformComponent? crusherXform))
+            return;
+
+        var coords = crusherXform.Coordinates;
         var protoId = ExtractProtos[colorIdx];
 
         for (var i = 0; i < totalCount; i++)

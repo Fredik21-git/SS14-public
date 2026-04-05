@@ -26,6 +26,7 @@ using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mind.Components;
 using Content.Shared.NPC.Components;
+using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
 using Content.Shared.Popups;
 using Content.Shared.Radio.Components;
@@ -44,6 +45,7 @@ using Robust.Shared.Network;
 using Robust.Shared.Physics;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Events;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Timing;
 
 namespace Content.Server.Imperial.Blob;
@@ -53,6 +55,7 @@ public sealed class BlobOvermindSystem : EntitySystem
     private const string BlobAttackSound = "/Audio/Imperial/blob/sound_effects_attackblob.ogg";
     private const string BlobGrowSound = "/Audio/Imperial/blob/sound_effects_splat.ogg";
     private const string BlobMutateSound = "/Audio/Imperial/blob/sound_magic_mutate.ogg";
+    private static readonly ProtoId<NpcFactionPrototype> BlobFaction = "Blob";
 
     private static readonly Vector2i[] CardinalOffsets =
     {
@@ -73,7 +76,6 @@ public sealed class BlobOvermindSystem : EntitySystem
     [Dependency] private readonly SharedEyeSystem _eye = default!;
     [Dependency] private readonly HandsSystem _hands = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
-    [Dependency] private readonly INetManager _net = default!;
     [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly ITileDefinitionManager _tileDefs = default!;
     [Dependency] private readonly SharedMapSystem _map = default!;
@@ -1104,7 +1106,7 @@ public sealed class BlobOvermindSystem : EntitySystem
     private void EnsureControllerRadioProfile(EntityUid controller)
     {
         _blobMob.EnsureBlobRadio(controller);
-        _npcFaction.AddFaction(controller, "Blob");
+        _npcFaction.AddFaction(controller, BlobFaction);
     }
 
     private void TryPrimaryAttack(EntityUid uid, BlobOvermindComponent comp, EntityCoordinates target)
@@ -2142,7 +2144,7 @@ public sealed class BlobOvermindSystem : EntitySystem
         if (TryComp<BlobMobComponent>(entity, out var mob))
             return mob.OwnerMind == blobId;
 
-        if (_npcFaction.IsMember(entity, "Blob"))
+        if (_npcFaction.IsMember(entity, BlobFaction))
             return true;
 
         if (HasComp<BlobMouseComponent>(entity))

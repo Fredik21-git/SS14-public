@@ -199,7 +199,7 @@ public sealed class SanitySystem : EntitySystem
         if (!TryComp<BloodstreamComponent>(ent, out var bloodstream))
             return;
 
-        if (!_solutions.TryGetSolution(ent.Owner, bloodstream.ChemicalSolutionName, out _, out var solution))
+        if (!_solutions.TryGetSolution(ent.Owner, bloodstream.BloodSolutionName, out _, out var solution))
             return;
 
         foreach (var reagent in solution.Contents)
@@ -258,7 +258,7 @@ public sealed class SanitySystem : EntitySystem
             if (!TryComp<MobStateComponent>(nearby, out var state) || state.CurrentState == MobState.Dead)
                 continue;
 
-            if (!TryComp<MetaDataComponent>(nearby, out var meta))
+            if (!TryComp(nearby, out MetaDataComponent? meta))
                 continue;
 
             var protoId = meta.EntityPrototype?.ID;
@@ -392,7 +392,7 @@ public sealed class SanitySystem : EntitySystem
             if (ent == uid)
                 continue;
 
-            if (!HasComp<HumanoidAppearanceComponent>(ent))
+            if (!HasComp<HumanoidProfileComponent>(ent))
                 continue;
 
             if (!TryComp<MobStateComponent>(ent, out var state) || state.CurrentState != MobState.Alive)
@@ -433,7 +433,7 @@ public sealed class SanitySystem : EntitySystem
             if (!_interaction.InRangeUnobstructed(uid, ent, radius + 0.1f))
                 continue;
 
-            if (TryComp<MetaDataComponent>(ent, out var meta) &&
+            if (TryComp(ent, out MetaDataComponent? meta) &&
                 meta.EntityPrototype?.ID.Contains("NDA", StringComparison.OrdinalIgnoreCase) == true)
             {
                 return true;
@@ -464,7 +464,7 @@ public sealed class SanitySystem : EntitySystem
             if (!TryComp<MobStateComponent>(ent, out var state) || state.CurrentState == MobState.Dead)
                 continue;
 
-            if (!TryComp<MetaDataComponent>(ent, out var meta))
+            if (!TryComp(ent, out MetaDataComponent? meta))
                 continue;
 
             var protoId = meta.EntityPrototype?.ID;

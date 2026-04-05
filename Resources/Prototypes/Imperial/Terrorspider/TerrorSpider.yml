@@ -4549,12 +4549,64 @@
   id: Terrorspider
   alias:
     - Terror
-  name: Terror Spiders
-  description: Terror spiders have appeared on the station. These vile and bloodthirsty spiders want to capture the station and turn it into their hive.
+    - terrorspider
+    - tspider
+  name: terror-spider-title
+  description: terror-spider-description
   showInVote: false
   rules:
+    - TerrorSpiderMigration
     - BasicStationEventScheduler
     - BasicRoundstartVariation
+
+- type: entity
+  id: TerrorSpiderMigration
+  parent: BaseGameRule
+  components:
+  - type: GameRule
+    minPlayers: 2
+    delay:
+      min: 240
+      max: 420
+  - type: TerrorSpiderRule
+  - type: AntagSelection
+    selectionTime: IntraPlayerSpawn
+    definitions:
+    - prefRoles: [ TerrorSpider ]
+      min: 1
+      max: 1
+      playerRatio: 20
+      lateJoinAdditional: false
+      blacklist:
+        components:
+        - AntagImmune
+      briefing:
+        text: terror-spider-role-greeting
+        color: DarkRed
+      mindRoles:
+      - MindRoleTerrorSpiderQueen
+
+- type: entity
+  id: SpawnPointGhostTerrorSpiderQueen
+  name: спавнер королевы пауков ужаса
+  suffix: королева пауков ужаса
+  categories: [ HideSpawnMenu, Spawner ]
+  parent: BaseAntagSpawner
+  components:
+  - type: GhostRole
+    name: Королева пауков ужаса
+    description: Возглавьте улей пауков ужаса и захватите станцию.
+    rules: ghost-role-information-antagonist-rules
+    raffle:
+      settings: default
+  - type: GhostRoleMobSpawner
+    prototype: MobQueenSpider
+  - type: Sprite
+    sprite: Markers/jobs.rsi
+    layers:
+    - state: green
+    - sprite: Imperial/TerrorSpider/Spider/queen.rsi
+      state: terror_queen
 
 - type: reagent
   id: BlackTerrorVenom

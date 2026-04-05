@@ -139,6 +139,16 @@
   group: market
 
 - type: cargoProduct
+  id: EngineeringBSA
+  icon:
+    sprite: Objects/Devices/Circuitboards/machine.rsi
+    state: engineering
+  product: CrateEngineeringBSA
+  cost: 100000
+  category: cargoproduct-category-name-engineering
+  group: market
+
+- type: cargoProduct
   id: EngineeringSpaceHeater
   icon:
     sprite: Structures/Piping/Atmospherics/Portable/portable_sheater.rsi

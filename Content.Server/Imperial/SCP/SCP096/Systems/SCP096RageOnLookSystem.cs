@@ -197,7 +197,9 @@ public sealed class SCP096RageOnLookSystem : EntitySystem
 
     private bool UpdateRageTargets(EntityUid target, SCP096RageOnLookComponent comp)
     {
-        var targetXform = Transform(target);
+        if (!TryComp(target, out TransformComponent? targetXform))
+            return false;
+
         var targetPosition = _transform.GetWorldPosition(targetXform);
         var targetMap = targetXform.MapID;
         var watched = false;
@@ -213,7 +215,7 @@ public sealed class SCP096RageOnLookSystem : EntitySystem
             if (!TryComp<MobStateComponent>(observer, out var mobState) || mobState.CurrentState != MobState.Alive)
                 continue;
 
-            if (!TryComp<TransformComponent>(observer, out var observerTransform))
+            if (!TryComp(observer, out TransformComponent? observerTransform))
                 continue;
 
             if (observerTransform.MapID != targetMap)

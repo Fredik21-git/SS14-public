@@ -13,9 +13,11 @@ using Content.Shared.Imperial.Blob.Components;
 using Content.Shared.Inventory;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
+using Content.Shared.NPC.Prototypes;
 using Content.Shared.NPC.Systems;
 using Content.Shared.Popups;
 using Robust.Shared.Map;
+using Robust.Shared.Prototypes;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Physics.Components;
 using Robust.Shared.Physics.Systems;
@@ -25,6 +27,8 @@ namespace Content.Server.Imperial.Blob;
 
 public sealed class BlobInfectionSystem : EntitySystem
 {
+    private static readonly ProtoId<NpcFactionPrototype> BlobFaction = "Blob";
+
     private const string BlobGrowSound = "/Audio/Imperial/blob/sound_effects_splat.ogg";
 
     [Dependency] private readonly SharedAudioSystem _audio = default!;
@@ -65,7 +69,7 @@ public sealed class BlobInfectionSystem : EntitySystem
             if (infected.OwnerMind is not { })
                 continue;
 
-            if (_npcFaction.IsMember(infectedUid, "Blob"))
+            if (_npcFaction.IsMember(infectedUid, BlobFaction))
                 continue;
 
             if (TryComp<MobStateComponent>(infectedUid, out var mobState) && mobState.CurrentState == MobState.Dead)
@@ -171,7 +175,7 @@ public sealed class BlobInfectionSystem : EntitySystem
         if (HasComp<BlobMobComponent>(target) ||
             HasComp<BlobOvermindComponent>(target) ||
             HasComp<BlobStructureComponent>(target) ||
-            _npcFaction.IsMember(target, "Blob"))
+            _npcFaction.IsMember(target, BlobFaction))
         {
             return;
         }
@@ -246,7 +250,7 @@ public sealed class BlobInfectionSystem : EntitySystem
     private void ConfigureBlobAlly(EntityUid target, EntityUid ownerMind, BlobChemicalType chemical)
     {
         _npcFaction.ClearFactions(target);
-        _npcFaction.AddFaction(target, "Blob");
+        _npcFaction.AddFaction(target, BlobFaction);
 
         var infected = EnsureComp<BlobInfectedComponent>(target);
         infected.OwnerMind = ownerMind;
@@ -349,7 +353,7 @@ public sealed class BlobInfectionSystem : EntitySystem
         if (!TryComp<MobStateComponent>(target, out var targetMobState) || targetMobState.CurrentState == MobState.Dead)
             return false;
 
-        if (_npcFaction.IsMember(target, "Blob"))
+        if (_npcFaction.IsMember(target, BlobFaction))
             return false;
 
         return true;

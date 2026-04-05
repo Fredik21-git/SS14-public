@@ -1,5 +1,6 @@
 using Robust.Shared.GameStates;
 using Robust.Shared.Serialization;
+using Robust.Shared.ViewVariables;
 
 namespace Content.Shared.Imperial.Cult.Components;
 
@@ -30,8 +31,6 @@ public sealed partial class CultStructureComponent : Component
     [DataField]
     public TimeSpan Cooldown = TimeSpan.FromMinutes(4);
 
-    public TimeSpan? NextUse;
-
     /// <summary>
     /// Скрыта ли структура заклинанием Маскировки присутствия.
     /// </summary>
@@ -45,7 +44,16 @@ public sealed partial class CultStructureComponent : Component
     public string? OriginalProto;
 
     /// <summary>
-    /// Следующий тик пассивного эффекта пилона (лечение + конвертация).
+    /// Момент, после которого структуру снова можно использовать.
+    /// Вычисляется на сервере.
     /// </summary>
+    [ViewVariables]
+    public TimeSpan? NextUse;
+
+    /// <summary>
+    /// Следующий тик исцеления для пилона.
+    /// Вычисляется на сервере.
+    /// </summary>
+    [ViewVariables]
     public TimeSpan NextPylonTick;
 }

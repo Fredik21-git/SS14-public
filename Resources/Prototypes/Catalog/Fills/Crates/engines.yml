@@ -103,6 +103,20 @@
         - id: MachineParticleAcceleratorPowerBoxCircuitboard
         - id: ParticleAcceleratorComputerCircuitboard
 
+- type: entity
+  parent: CrateEngineeringSecure
+  id: CrateEngineeringBSA
+  name: BSA board crate
+  description: Contains all circuit boards required to assemble a bluespace artillery.
+  components:
+  - type: EntityTableContainerFill
+    containers:
+      entity_storage: !type:AllSelector
+        children:
+        - id: BSAControlBoxCircuitboard
+        - id: BSAFrontPartCircuitboard
+        - id: BSABackPartCircuitboard
+
 # Non-functional for some reason
 
 #- type: entity

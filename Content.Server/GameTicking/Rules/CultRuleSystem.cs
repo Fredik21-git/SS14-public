@@ -8,6 +8,7 @@ using Content.Server.RoundEnd;
 using Content.Server.Station.Systems;
 using Content.Shared.Body.Events;
 using Content.Shared.GameTicking.Components;
+using Content.Shared.Gibbing;
 using Content.Shared.Ghost;
 using Content.Shared.Imperial.Cult.Components;
 using Content.Shared.Mind;
@@ -188,7 +189,7 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
             if (!TryComp<NavMapBeaconComponent>(beaconUid, out var beacon))
                 continue;
 
-            if (!TryComp<TransformComponent>(beaconUid, out var xform))
+            if (!TryComp(beaconUid, out TransformComponent? xform))
                 continue;
 
             if (!_navMap.TryGetBeaconLabel(beaconUid, out _, beacon))
@@ -222,7 +223,7 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
             if (!TryComp<NavMapBeaconComponent>(beaconUid, out var beacon))
                 continue;
 
-            if (!TryComp<TransformComponent>(beaconUid, out var xform))
+            if (!TryComp(beaconUid, out TransformComponent? xform))
                 continue;
 
             if (!_navMap.TryGetBeaconLabel(beaconUid, out var candidate, beacon))
@@ -361,7 +362,25 @@ public sealed class CultRuleSystem : GameRuleSystem<CultRuleComponent>
     private void EnsureNarSieBeacons(Entity<CultRuleComponent> ent, EntityUid? stationUid = null)
     {
         if (ent.Comp.NarSieBeaconTargets.Count > 0 && ent.Comp.NarSieBeaconLabels.Count > 0)
-            return;
+        {
+            if (stationUid == null)
+                return;
+
+            var allMatchStation = true;
+            foreach (var target in ent.Comp.NarSieBeaconTargets)
+            {
+                if (!EntityManager.EntityExists(target)
+                    || TerminatingOrDeleted(target)
+                    || _station.GetOwningStation(target) != stationUid)
+                {
+                    allMatchStation = false;
+                    break;
+                }
+            }
+
+            if (allMatchStation)
+                return;
+        }
 
         var candidates = new List<(EntityUid Uid, string Label)>();
         var query = EntityQueryEnumerator<NavMapBeaconComponent>();
