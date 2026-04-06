@@ -26,6 +26,9 @@ namespace Content.Server.Imperial.Cult;
 /// </summary>
 public sealed class CultConstructSystem : EntitySystem
 {
+    private static readonly EntProtoId ActionCultCommuneId = "ActionCultCommune";
+    private static readonly EntProtoId ActionCultConstructCreateWallId = "ActionCultConstructCreateWall";
+
     private static readonly string[] ForbiddenCultistActions =
     {
         "ActionCultBloodMagic",
@@ -43,7 +46,7 @@ public sealed class CultConstructSystem : EntitySystem
         "ActionCultDarkSpiritCommune",
     };
 
-    private static readonly ProtoId<EntityPrototype>[] ArtificerActions =
+    private static readonly EntProtoId[] ArtificerActions =
     {
         "ActionCultConstructCreateJuggernautShell",
         "ActionCultConstructCreateWraithShell",
@@ -95,7 +98,7 @@ public sealed class CultConstructSystem : EntitySystem
                 _actions.RemoveAction(uid, action.Owner);
         }
 
-        _actions.AddAction(uid, "ActionCultCommune");
+        _actions.AddAction(uid, ActionCultCommuneId);
 
         switch (comp.Kind)
         {
@@ -106,7 +109,7 @@ public sealed class CultConstructSystem : EntitySystem
                 }
                 break;
             case CultConstructKind.Juggernaut:
-                _actions.AddAction(uid, "ActionCultConstructCreateWall");
+                _actions.AddAction(uid, ActionCultConstructCreateWallId);
                 break;
         }
 

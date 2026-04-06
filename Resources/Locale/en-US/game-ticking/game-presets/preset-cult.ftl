@@ -1,0 +1,2 @@
+cult-preset-title = Nar'Sie Cult
+cult-preset-description = Two crew members begin the round as cultists of Nar'Sie. They must offer the marked sacrifices, gather the cult's strength, and complete the summoning ritual.

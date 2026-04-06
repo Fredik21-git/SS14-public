@@ -70,6 +70,7 @@
                    },
                    {
                        "name":  "shield-cult",
+                       "directions":  1,
                        "delays":  [
                                       [
                                           0.1,
