@@ -5,6 +5,8 @@
 # Роль
 roles-antag-cultist-name = Культист
 roles-antag-cultist-objective = Помогите культу вызвать Нар'Си, принося жертвы и призывая союзников.
+cult-preset-title = Культ Нар'Си
+cult-preset-description = На станции действует тайный культ. Последователи обращают экипаж, проводят жертвоприношения и пытаются призвать Нар'Си.
 
 # cult-role-greeting определён в White/cult.ftl  дубль удалён
 
@@ -425,3 +427,27 @@ ent-CultSpellItemBloodRites = Тёмная энергия
 
 ent-CultBloodOrb = Кровавая сфера
     .desc = Сконденсированные заряды Кровавого обряда. Передайте союзнику или поглотите сами.
+
+# Явные локализации имён action-сущностей (для UI/спавн-меню, где показывается entity name)
+ent-ActionCultCommune = Общение
+ent-ActionCultStun = Оглушение
+ent-ActionCultShackles = Теневые оковы
+ent-ActionCultTeleport = Телепортация
+ent-ActionCultEmp = ЭМИ
+ent-ActionCultTwistedConstruction = Искажённое строительство
+ent-ActionCultSummonDagger = Призыв кинжала
+ent-ActionCultSummonEquipment = Призыв снаряжения
+ent-ActionCultConcealPresence = Маскировка присутствия
+ent-ActionCultBloodRites = Обряды крови
+ent-ActionCultBloodMagic = Кровавая магия
+ent-ActionCultDarkSpiritReturn = Вернуться в тело
+ent-ActionCultDarkSpiritCommune = Общение
+ent-ActionCultRecallBloodSpear = Возврат копья крови
+ent-ActionCultConstructCreateJuggernautShell = Слепить оболочку джаггернаута
+ent-ActionCultConstructCreateWraithShell = Слепить оболочку фантома
+ent-ActionCultConstructCreateArtificerShell = Слепить оболочку созидателя
+ent-ActionCultConstructCreateSoulStone = Сформировать камень души
+ent-ActionCultConstructCreatePylon = Воздвигнуть пилон
+ent-ActionCultConstructCreateFloor = Запятнать пол
+ent-ActionCultConstructHealAlly = Починить союзника
+ent-ActionCultConstructCreateWall = Воздвигнуть барьер

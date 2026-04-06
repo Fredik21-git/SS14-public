@@ -130,3 +130,24 @@ blob-ghost-role-mouse-name = Носитель Блоба
 blob-ghost-role-mouse-desc = Появитесь в вентиляции в виде скрытого мышиного носителя Блоба, проникните на станцию и раскройтесь в подходящий момент.
 blob-ghost-role-blobbernaut-name = Блоббернаут
 blob-ghost-role-blobbernaut-desc = Возьмите под контроль тяжёлого бойца Блоба и поддержите разрастание роя.
+
+# Явные локализации имён action-сущностей (для UI/спавн-меню, где показывается entity name)
+ent-ActionBlobAttack = Атаковать клеткой
+ent-ActionBlobConsumeTile = Поглотить клетку
+ent-ActionBlobPlaceTile = Вырастить клетку
+ent-ActionBlobPlaceShieldTile = Улучшить клетку
+ent-ActionBlobPlaceNode = Вырастить узел
+ent-ActionBlobPlaceFactory = Вырастить фабрику
+ent-ActionBlobPlaceResource = Вырастить ресурсный узел
+ent-ActionBlobPlaceStorage = Вырастить хранилище
+ent-ActionBlobPlaceLauncher = Вырастить пускатель
+ent-ActionBlobPlaceCooling = Вырастить охладитель
+ent-ActionBlobSpawnBlobbernaut = Сформировать блоббернаута
+ent-ActionBlobRallyMinions = Приказ роем
+ent-ActionBlobUpgradeGeneration = Усилить метаболизм
+ent-ActionBlobUpgradeAttack = Усилить натиск
+ent-ActionBlobUpgradeCapacity = Усилить объём
+ent-ActionBlobSplitConsciousness = Разделить сознание
+ent-ActionBlobShowStatus = Состояние роя
+ent-ActionBlobChangeChemical = Сменить реагент
+ent-ActionBlobMouseTransform = Раскрыться
