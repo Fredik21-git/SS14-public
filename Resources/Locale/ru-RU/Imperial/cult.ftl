@@ -3,7 +3,7 @@
 # ====================================================
 
 # Роль
-roles-antag-cultist-name = Последователь
+roles-antag-cultist-name = Культист
 roles-antag-cultist-objective = Помогите культу вызвать Нар'Си, принося жертвы и призывая союзников.
 
 # cult-role-greeting определён в White/cult.ftl  дубль удалён
@@ -134,8 +134,6 @@ cult-spell-conceal-presence = Маскировка присутствия
 cult-spell-blood-rites = Обряды крови
 cult-spell-unknown = Неизвестное заклинание
 
-alerts-cultist-hud-name = Культист
-alerts-cultist-hud-desc = Вы отмечены как последователь Нар'Си.
 cult-commune-hint = Используйте Общение, чтобы передать сообщение всем культистам.
 cult-commune-converted = [ОБЩИНА] { $name } обращён в веру Нар'Си!
 cult-commune-sacrifice = [ОБЩИНА] { $name } принесён в жертву Нар'Си!
@@ -222,20 +220,6 @@ cult-action-blood-magic-desc = Открывает окно выбора закл
 cult-rune-select-title = Выбор руны
 cult-blood-magic-title = Кровавая магия
 cult-blood-magic-info = Выберите заклинание для подготовки. Стоит 20 HP и занимает 10 секунд.
-cult-blood-magic-swap-title = Замена заклинания
-cult-blood-magic-swap-choose = Выберите заклинание для замены на «{ $spell }»:
-
-# Названия заклинаний в окне Blood Magic
-cult-spell-stun = Оглушение
-cult-spell-shackles = Теневые оковы
-cult-spell-teleport = Телепортация
-cult-spell-emp = ЭМИ
-cult-spell-twisted-construction = Искажённое строительство
-cult-spell-summon-dagger = Призыв кинжала
-cult-spell-summon-equipment = Призыв снаряжения
-cult-spell-conceal-presence = Маскировка присутствия
-cult-spell-blood-rites = Обряды крови
-cult-spell-unknown = Неизвестное заклинание
 
 # Системные сообщения Blood Magic
 cult-blood-magic-need-dagger = Вам нужен ритуальный кинжал в руке.
@@ -409,7 +393,7 @@ cult-blood-rites-window-title = Кровавый обряд
 cult-blood-rites-window-charges = Заряды обряда: { $charges } | Режим: { $mode }
 cult-blood-rites-mode-gather = Сбор крови
 cult-blood-rites-mode-heal = Ритуал крови
-cult-blood-rites-mode-recharge = Перезарядка крови
+cult-blood-rites-mode-recharge = Перезарядка реликтов
 cult-blood-rites-mode-orb = Кровавая сфера
 cult-blood-rites-mode-spear = Кровавое копьё
 cult-blood-rites-mode-set = Режим обряда: { $mode }
