@@ -55,6 +55,12 @@ public sealed partial class CultRuneComponent : Component
     public int ReviveCharges = 1;
 
     /// <summary>
+    /// Количество участников ритуала на руне в момент последней активации.
+    /// </summary>
+    [DataField]
+    public int InvokersOnRune;
+
+    /// <summary>
     /// Состояние спрайта при уничтожении руны (например, анимация rune_large_distorted).
     /// Если задано, перед удалением спрайт переключается в это состояние.
     /// </summary>

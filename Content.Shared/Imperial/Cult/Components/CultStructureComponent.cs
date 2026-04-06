@@ -41,4 +41,16 @@ public sealed partial class CultStructureComponent : Component
     /// </summary>
     [DataField]
     public string? OriginalProto;
+
+    /// <summary>
+    /// Время следующего тика работы пилона.
+    /// </summary>
+    [DataField]
+    public TimeSpan NextPylonTick;
+
+    /// <summary>
+    /// Время следующего использования структуры, если находится на перезарядке.
+    /// </summary>
+    [DataField]
+    public TimeSpan? NextUse;
 }

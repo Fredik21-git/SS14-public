@@ -1,10 +1,10 @@
+using System.Linq;
 using Content.Server.Actions;
 using Content.Server.GameTicking.Rules.Components;
 using Content.Server.GameTicking.Rules;
 using Content.Server.Imperial.Cult.Components;
 using Content.Shared.Imperial.Cult.Components;
 using Content.Shared.Imperial.Cult;
-using Content.Server.Body.Systems;
 using Content.Server.Damage.Systems;
 using Content.Server.Explosion.EntitySystems;
 using Content.Server.Mind;
@@ -19,6 +19,7 @@ using Content.Shared.Damage.Systems;
 using Content.Shared.Electrocution;
 using Content.Shared.Ghost;
 using Content.Shared.Interaction;
+using Content.Shared.Gibbing;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
@@ -55,22 +56,17 @@ public sealed class CultRuneSystem : EntitySystem
     [Dependency] private readonly ActionsSystem _actions = default!;
     [Dependency] private readonly CultSystem _cult = default!;
     [Dependency] private readonly CultRuleSystem _cultRule = default!;
-    [Dependency] private readonly BodySystem _bodySystem = default!;
+    [Dependency] private readonly GibbingSystem _gibbing = default!;
     [Dependency] private readonly DamageableSystem _damage = default!;
-    [Dependency] private readonly ExplosionSystem _explosion = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
     [Dependency] private readonly MindSystem _mind = default!;
     [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly RejuvenateSystem _rejuvenate = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedPointLightSystem _pointLight = default!;
     [Dependency] private readonly SharedTransformSystem _xform = default!;
     [Dependency] private readonly StaminaSystem _stamina = default!;
-    [Dependency] private readonly StealthSystem _stealth = default!;
     [Dependency] private readonly StationSystem _station = default!;
-    [Dependency] private readonly StatusEffectsSystem _statusEffects = default!;
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
 
     private bool IsCultAligned(EntityUid uid)
@@ -329,7 +325,7 @@ public sealed class CultRuneSystem : EntitySystem
 
         // Гибируем жертву (части тела, мозг, вещи остаются на полу)
         var victimName = MetaData(victim).EntityName;
-        _bodySystem.GibBody(victim, gibOrgans: true);
+        _gibbing.Gib(victim);
 
         _audio.PlayPvs("/Audio/Effects/gib.ogg", runeUid);
         _popup.PopupEntity(Loc.GetString("cult-sacrifice-complete", ("name", victimName)), invoker, invoker);
