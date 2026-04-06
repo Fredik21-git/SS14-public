@@ -85,6 +85,7 @@
   - type: Sprite
     sprite: Imperial/cult/forge.rsi
     state: forge
+    snapCardinals: false
   - type: Icon
     sprite: Imperial/cult/forge.rsi
     state: forge
@@ -257,6 +258,8 @@
   description: Непроницаемая силовая стена культа. Разрушима при достаточном натиске.
   categories: [ HideSpawnMenu ]
   components:
+  - type: Transform
+    noRot: true
   - type: TimedDespawn
     lifetime: 10
   - type: Tag
@@ -291,6 +294,7 @@
   - type: Sprite
     sprite: Imperial/cult/effect.rsi
     state: shield-cult
+    snapCardinals: false
     color: "#8B0000"
 
 - type: entity
