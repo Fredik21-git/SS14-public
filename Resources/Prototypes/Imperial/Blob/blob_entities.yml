@@ -414,7 +414,9 @@
 
 - type: entity
   id: MobBlobMouse
-  parent: MobMouse
+  parent:
+  - SimpleMobBase
+  - BaseMobAnimal
   name: зародыш Блоба
   description: Носитель спящей массы Блоба. Если его не остановить, он раскроется в ядро.
   components:
