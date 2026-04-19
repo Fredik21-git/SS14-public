@@ -1,11 +1,11 @@
 - type: tile
   id: FloorCult
-  name: tiles-cult-floor
-  sprite: /Textures/Imperial/cult/floor/floors.rsi/cult.png
+  name: tiles-elevator-shaft
+  sprite: /Textures/Tiles/elevator_shaft.png
   baseTurf: Plating
   isSubfloor: false
   deconstructTools: [ Prying ]
-  itemDrop: FloorTileItemCult
+  itemDrop: FloorTileItemElevatorShaft
   footstepSounds:
-    collection: FootstepTile
+    collection: FootstepHull
   heatCapacity: 10000
