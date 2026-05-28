@@ -16,7 +16,7 @@ using Content.Shared.Flash;
 
 namespace Content.Server.Imperial.Vampire;
 
-[Virtual]
+
 public partial class VampireSystem : EntitySystem
 {
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
@@ -66,7 +66,7 @@ public partial class VampireSystem : EntitySystem
 
         for (int i = 0; i < args.BatCount; i++)
         {
-            var bat = EntityManager.SpawnEntity(args.BatID, playerCoords.Offset(new Vector2(i, 0)));
+            var bat = Spawn(args.BatID, playerCoords.Offset(new Vector2(i, 0)));
             vamp.BatsUid.Add(bat);
         }
 
