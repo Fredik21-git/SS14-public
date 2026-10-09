@@ -6,6 +6,7 @@ using Content.Shared.Atmos.Components;
 using Content.Shared.Body.Systems;
 using Content.Shared.Chat;
 using Content.Shared.Chemistry.Components;
+using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Damage.Prototypes;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Emp;
@@ -64,6 +65,12 @@ public sealed class BlobStrainSystem : EntitySystem
     [Dependency] private readonly BlobMobSystem _blobMob = default!;
     [Dependency] private readonly BlobInfectionSystem _infection = default!;
 
+    private static readonly ProtoId<ReagentPrototype> FrostOil = "FrostOil";
+    private static readonly ProtoId<ReagentPrototype> Ice = "Ice";
+    private static readonly ProtoId<ReagentPrototype> CryogenicPoison = "BlobCryogenicPoisonChem";
+    private static readonly ProtoId<ReagentPrototype> RegenerativeMateria = "BlobRegenerativeMateriaChem";
+    private static readonly ProtoId<ReagentPrototype> SporeToxin = "BlobSporeToxin";
+    private static readonly ProtoId<ReagentPrototype> SpaceLube = "SpaceLube";
     private static readonly ProtoId<DamageTypePrototype> Blunt = "Blunt";
     private static readonly ProtoId<DamageTypePrototype> Heat = "Heat";
     private static readonly ProtoId<DamageTypePrototype> Poison = "Poison";
@@ -198,9 +205,9 @@ public sealed class BlobStrainSystem : EntitySystem
                 if (v > 0)
                 {
                     var solution = new Solution();
-                    solution.AddReagent("FrostOil", 0.3f * v);
-                    solution.AddReagent("Ice", 0.3f * v);
-                    solution.AddReagent("BlobCryogenicPoisonChem", 0.3f * v);
+                    solution.AddReagent(FrostOil, 0.3f * v);
+                    solution.AddReagent(Ice, 0.3f * v);
+                    solution.AddReagent(CryogenicPoison, 0.3f * v);
                     _bloodstream.TryAddToBloodstream(target, solution);
                 }
                 Damage(target, Blunt, 0.2f * v);
@@ -278,8 +285,8 @@ public sealed class BlobStrainSystem : EntitySystem
                 {
                     _status.TryAddStatusEffectDuration(target, DrugStatus, TimeSpan.FromSeconds(v * 2));
                     var solution = new Solution();
-                    solution.AddReagent("BlobRegenerativeMateriaChem", 0.2f * v);
-                    solution.AddReagent("BlobSporeToxin", 0.2f * v);
+                    solution.AddReagent(RegenerativeMateria, 0.2f * v);
+                    solution.AddReagent(SporeToxin, 0.2f * v);
                     _bloodstream.TryAddToBloodstream(target, solution);
                 }
                 Damage(target, Poison, 0.7f * v);
@@ -607,7 +614,7 @@ public sealed class BlobStrainSystem : EntitySystem
     private void Lube(EntityCoordinates coords)
     {
         var solution = new Solution();
-        solution.AddReagent("SpaceLube", 5);
+        solution.AddReagent(SpaceLube, 5);
         _puddle.TrySpillAt(coords, solution, out _, false);
     }
 
