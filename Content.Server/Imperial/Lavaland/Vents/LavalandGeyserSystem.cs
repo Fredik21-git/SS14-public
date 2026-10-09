@@ -45,7 +45,10 @@ public sealed class LavalandGeyserSystem : EntitySystem
             ent.Comp.Reagent = _random.Pick(reagents).ID;
         }
 
-        var reagent = _proto.Index(ent.Comp.Reagent.Value);
+        if (ent.Comp.Reagent is not { } reagentId)
+            return;
+
+        var reagent = _proto.Index(reagentId);
         if (_solutions.EnsureSolution(ent.Owner, ent.Comp.Solution, out _, ent.Comp.MaxVolume) &&
             _solutions.TryGetSolution(ent.Owner, ent.Comp.Solution, out var soln, out _))
         {
