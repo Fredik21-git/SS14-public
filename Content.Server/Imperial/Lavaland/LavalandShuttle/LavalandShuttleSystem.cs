@@ -12,7 +12,6 @@ using Robust.Shared.Map.Components;
 using System.Numerics;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
-using Robust.Shared.Timing;
 
 namespace Content.Server.Imperial.Lavaland.LavalandShuttle;
 
@@ -21,15 +20,13 @@ public sealed class LavalandShuttleSystem : EntitySystem
     [Dependency] private readonly ShuttleSystem _shuttle = default!;
     [Dependency] private readonly StationSystem _station = default!;
     [Dependency] private readonly UserInterfaceSystem _uiSystem = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
 
     public override void Initialize()
     {
         base.Initialize();
         SubscribeLocalEvent<LavalandShuttleConsoleComponent, AfterActivatableUIOpenEvent>(OnUIOpened);
-        SubscribeLocalEvent<LavalandShuttleConsoleComponent, LavalandShuttleFlyToStationMessage>(OnSelectStation);
-        SubscribeLocalEvent<LavalandShuttleConsoleComponent, LavalandShuttleFlyToLavalandMessage>(OnSelectLavaland);
-        SubscribeLocalEvent<LavalandShuttleConsoleComponent, LavalandShuttleDepartMessage>(OnDepart);
+        SubscribeLocalEvent<LavalandShuttleConsoleComponent, LavalandShuttleFlyToStationMessage>(OnFlyToStation);
+        SubscribeLocalEvent<LavalandShuttleConsoleComponent, LavalandShuttleFlyToLavalandMessage>(OnFlyToLavaland);
         SubscribeLocalEvent<FTLCompletedEvent>(OnFTLCompleted);
     }
 
@@ -38,19 +35,7 @@ public sealed class LavalandShuttleSystem : EntitySystem
         SendState(uid, comp);
     }
 
-    private void OnSelectStation(EntityUid uid, LavalandShuttleConsoleComponent comp, LavalandShuttleFlyToStationMessage args)
-    {
-        comp.SelectedDestination = LavalandShuttleDestination.Station;
-        SendState(uid, comp);
-    }
-
-    private void OnSelectLavaland(EntityUid uid, LavalandShuttleConsoleComponent comp, LavalandShuttleFlyToLavalandMessage args)
-    {
-        comp.SelectedDestination = LavalandShuttleDestination.Lavaland;
-        SendState(uid, comp);
-    }
-
-    private void OnDepart(EntityUid uid, LavalandShuttleConsoleComponent comp, LavalandShuttleDepartMessage args)
+    private void OnFlyToStation(EntityUid uid, LavalandShuttleConsoleComponent comp, LavalandShuttleFlyToStationMessage args)
     {
         if (!TryComp(uid, out TransformComponent? xform) || xform.GridUid == null)
             return;
@@ -61,27 +46,6 @@ public sealed class LavalandShuttleSystem : EntitySystem
         if (!_shuttle.CanFTL(xform.GridUid.Value, out _))
             return;
 
-        if (comp.NextDepartureTime.HasValue && _timing.CurTime < comp.NextDepartureTime.Value)
-            return;
-
-        switch (comp.SelectedDestination)
-        {
-            case LavalandShuttleDestination.Station:
-                DepartToStation(xform.GridUid.Value, shuttleComp);
-                break;
-            case LavalandShuttleDestination.Lavaland:
-                DepartToLavaland(xform.GridUid.Value, shuttleComp, comp);
-                break;
-            default:
-                return;
-        }
-
-        comp.NextDepartureTime = _timing.CurTime + comp.DepartureCooldown;
-        SendState(uid, comp);
-    }
-
-    private void DepartToStation(EntityUid gridUid, ShuttleComponent shuttleComp)
-    {
         EntityUid? stationGrid = null;
         var query = EntityQueryEnumerator<StationDataComponent>();
         while (query.MoveNext(out var stationUid, out _))
@@ -94,12 +58,22 @@ public sealed class LavalandShuttleSystem : EntitySystem
         if (stationGrid == null)
             return;
 
-        _shuttle.FTLToDock(gridUid, shuttleComp, stationGrid.Value, startupTime: 0f, hyperspaceTime: 0f);
+        _shuttle.FTLToDock(xform.GridUid.Value, shuttleComp, stationGrid.Value);
+        SendState(uid, comp);
     }
 
-    private void DepartToLavaland(EntityUid gridUid, ShuttleComponent shuttleComp, LavalandShuttleConsoleComponent comp)
+    private void OnFlyToLavaland(EntityUid uid, LavalandShuttleConsoleComponent comp, LavalandShuttleFlyToLavalandMessage args)
     {
+        if (!TryComp(uid, out TransformComponent? xform) || xform.GridUid == null)
+            return;
+
+        if (!TryComp(xform.GridUid.Value, out ShuttleComponent? shuttleComp))
+            return;
+
         if (comp.RecyclingOutpostGrid == null)
+            return;
+
+        if (!_shuttle.CanFTL(xform.GridUid.Value, out _))
             return;
 
         var lavalandMapUid = Transform(comp.RecyclingOutpostGrid.Value).MapUid;
@@ -107,7 +81,8 @@ public sealed class LavalandShuttleSystem : EntitySystem
             return;
 
         var targetCoords = new EntityCoordinates(lavalandMapUid.Value, new Vector2(-16f, -3f));
-        _shuttle.FTLToCoordinates(gridUid, shuttleComp, targetCoords, Angle.Zero, startupTime: 0f, hyperspaceTime: 0f);
+        _shuttle.FTLToCoordinates(xform.GridUid.Value, shuttleComp, targetCoords, Angle.Zero);
+        SendState(uid, comp);
     }
 
     private void OnFTLCompleted(ref FTLCompletedEvent args)
@@ -133,19 +108,12 @@ public sealed class LavalandShuttleSystem : EntitySystem
             return;
 
         var inFtl = HasComp<FTLComponent>(xform.GridUid.Value);
-        var cooldownReady = !comp.NextDepartureTime.HasValue || _timing.CurTime >= comp.NextDepartureTime.Value;
-
-        var canDepart = !inFtl && cooldownReady && comp.SelectedDestination != LavalandShuttleDestination.None;
-        if (comp.SelectedDestination == LavalandShuttleDestination.Lavaland && comp.RecyclingOutpostGrid == null)
-            canDepart = false;
 
         _uiSystem.SetUiState(uid, LavalandShuttleConsoleUiKey.Key,
             new LavalandShuttleConsoleBoundUserInterfaceState
             {
-                SelectedDestination = comp.SelectedDestination,
-                StationAvailable = true,
-                LavalandAvailable = comp.RecyclingOutpostGrid != null,
-                CanDepart = canDepart,
+                CanFlyToStation = !inFtl,
+                CanFlyToLavaland = !inFtl && comp.RecyclingOutpostGrid != null,
             });
     }
 }

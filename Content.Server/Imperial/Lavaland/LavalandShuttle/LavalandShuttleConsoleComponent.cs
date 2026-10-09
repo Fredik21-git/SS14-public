@@ -1,4 +1,3 @@
-using Content.Shared.Imperial.Lavaland.LavalandShuttle;
 using Robust.Shared.GameObjects;
 
 namespace Content.Server.Imperial.Lavaland.LavalandShuttle;
@@ -13,16 +12,4 @@ public sealed partial class LavalandShuttleConsoleComponent : Component
     /// </summary>
     [DataField]
     public EntityUid? RecyclingOutpostGrid;
-
-    /// <summary>
-    /// How long after departure before the shuttle can be sent again.
-    /// </summary>
-    [DataField]
-    public TimeSpan DepartureCooldown = TimeSpan.FromMinutes(5);
-
-    [ViewVariables]
-    public TimeSpan? NextDepartureTime;
-
-    [ViewVariables]
-    public LavalandShuttleDestination SelectedDestination = LavalandShuttleDestination.None;
 }

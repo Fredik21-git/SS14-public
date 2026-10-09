@@ -32,6 +32,8 @@
   - type: Item
     sprite: Imperial/lava/mining/artefact.rsi
   - type: PrisonCubeTeleport
+    linkChannel: red
+    targetChannel: blue
 
 - type: entity
   parent: BaseItem
@@ -48,11 +50,5 @@
   - type: Item
     sprite: Imperial/lava/mining/artefact.rsi
   - type: PrisonCubeTeleport
-
-- type: entity
-  id: PrisonCubeTeleportPair
-  suffix: Lavaland
-  name: пара кубов портала
-  categories: [ HideSpawnMenu ]
-  components:
-  - type: PrisonCubePairSpawner
+    linkChannel: blue
+    targetChannel: red

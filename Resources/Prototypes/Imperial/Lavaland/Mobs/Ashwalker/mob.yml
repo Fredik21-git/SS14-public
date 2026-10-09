@@ -3,17 +3,17 @@
 # MobAshwalker — боевой НПС; при появлении через яйцо действует как обычный
 # враждебный моб. Также используется как тело для призраков (SpawnAshwalkerGhostRoleLavaland).
 
-# ── Орган: лёгкие пеплоходца (дышат углекислым газом лаваленда, как растения) ───────────────────
+# ── Орган: лёгкие пеплоходца (дышат азотом, как слаймолюды) ──────────────────
 
 - type: entity
   id: OrganAshwalkerLungs
   parent: OrganReptilianLungs
   components:
   - type: Lung
-    alert: LowOxygen
+    alert: LowNitrogen
   - type: Metabolizer
     metabolizerTypes:
-    - Plant
+    - Slime
 
 # ── NPC-моб ───────────────────────────────────────────────────────────────────
 

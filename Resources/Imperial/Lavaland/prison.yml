@@ -1215,7 +1215,7 @@ entities:
     - type: Transform
       pos: 8.5,-3.5
       parent: 1
-- proto: DrinkCafeLatte
+- proto: DrinkCoffeeWithCreamCustom
   entities:
   - uid: 286
     components:
