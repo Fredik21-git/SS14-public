@@ -24,7 +24,7 @@
     rules: ghost-role-information-cult-construct-rules
   - type: GhostTakeoverAvailable
   - type: Damageable
-    damageContainer: ImperialCultConstruct
+    damageContainer: Inorganic
     damageModifierSet: Metallic
   - type: MobState
     allowedStates:
