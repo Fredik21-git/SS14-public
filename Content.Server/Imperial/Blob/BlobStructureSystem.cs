@@ -929,7 +929,7 @@ public sealed partial class BlobStructureSystem : EntitySystem
     /// </summary>
     private void OnSmokeGrenadeTerminating(Entity<SmokeOnTriggerComponent> ent, ref EntityTerminatingEvent args)
     {
-        if (MetaData(ent).EntityPrototype?.ID != SmokeGrenadePrototype)
+        if (MetaData(ent).EntityPrototype?.ID != SmokeGrenadePrototype.Id)
             return;
 
         var xform = Transform(ent);

@@ -8,7 +8,7 @@ namespace Content.Shared.Imperial.Blob;
 /// Штамм блоба (datum/blobstrain из SS13): цвет, описания и бонусы.
 /// Поведение конкретного штамма определяется <see cref="Kind"/> в серверной системе.
 /// </summary>
-[Prototype("blobStrain")]
+[Prototype]
 public sealed partial class BlobStrainPrototype : IPrototype
 {
     [IdDataField]
