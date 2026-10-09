@@ -17,7 +17,6 @@ namespace Content.Server.Imperial.Cult;
 /// <summary>Жнец (amputating_limbs, seek_prey), seek_master, самонаведение малой магической ракеты.</summary>
 public sealed partial class CultConstructSystem
 {
-    [Dependency] private readonly Robust.Shared.Physics.Systems.SharedPhysicsSystem _phys = default!;
 
     private static readonly EntProtoId SeekMasterAction = "ActionCultSeekMaster";
     private static readonly EntProtoId SeekPreyAction = "ActionCultSeekPrey";
@@ -141,7 +140,7 @@ public sealed partial class CultConstructSystem
             return;
         foreach (var action in comp.GrantedActions)
         {
-            if (MetaData(action).EntityPrototype?.ID != SeekPreyAction)
+            if (MetaData(action).EntityPrototype is not { } actionProto || actionProto.ID != SeekPreyAction.Id)
                 continue;
             var ev = new CultSeekPreyActionEvent();
             ev.Action = (action, Comp<Content.Shared.Actions.Components.ActionComponent>(action));
@@ -170,7 +169,7 @@ public sealed partial class CultConstructSystem
             if (delta.LengthSquared() < 0.01f)
                 continue;
             var velocity = Vector2.Normalize(delta) * missile.Speed;
-            _phys.SetLinearVelocity(uid, velocity, body: physics);
+            _physics.SetLinearVelocity(uid, velocity, body: physics);
             _transform.SetWorldRotation(uid, velocity.ToWorldAngle());
         }
     }
