@@ -468,3 +468,18 @@
     shader: unshaded
   - type: TimedDespawn
     lifetime: 1.5
+
+# temp_visual/heal с healing_color = COLOR_CULT_RED (aura_healing пилона).
+- type: entity
+  id: CultPylonHealEffect
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: Transform
+    noRot: true
+  - type: Sprite
+    sprite: Imperial/BloodCult/effects.rsi
+    state: pylon_heal
+    drawdepth: Effects
+    color: "#960000"
+  - type: TimedDespawn
+    lifetime: 1.5

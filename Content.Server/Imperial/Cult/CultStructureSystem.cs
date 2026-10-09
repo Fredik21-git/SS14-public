@@ -44,6 +44,7 @@ namespace Content.Server.Imperial.Cult;
 public sealed partial class CultStructureSystem : EntitySystem
 {
     [Dependency] private readonly IGameTiming _timing = default!;
+    [Dependency] private readonly Content.Shared.Damage.Systems.DamageableSystem _damageable = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly ITileDefinitionManager _tiles = default!;
     [Dependency] private readonly CultSystem _cult = default!;
@@ -70,6 +71,7 @@ public sealed partial class CultStructureSystem : EntitySystem
     [Dependency] private readonly ExamineSystemShared _examine = default!;
 
     public const string CultFloor = "FloorCult";
+    private static readonly EntProtoId PylonHealEffect = "CultPylonHealEffect";
     private static readonly string[] PylonBlacklistTiles = { "FloorAsteroidSand", "FloorAsteroidTile", "FloorAsteroidIronsand", "FloorCult" };
 
     /// <summary>Рецепты рунного металла (runed_metal_recipes).</summary>
@@ -277,6 +279,10 @@ public sealed partial class CultStructureSystem : EntitySystem
             if (!_cult.IsCultAligned(mob) || _mobState.IsDead(mob))
                 continue;
 
+            // temp_visual/heal цвета культа раз в секунду, если есть что лечить.
+            if (TryComp<DamageableComponent>(mob, out var damageable) && _damageable.GetTotalDamage((mob, damageable)) > 0)
+                Spawn(PylonHealEffect, Transform(mob).Coordinates.Offset(new System.Numerics.Vector2(_random.NextFloat(-0.375f, 0.375f), _random.NextFloat(-0.28f, 0f))));
+
             if (HasComp<CultConstructComponent>(mob) || HasComp<CultShadeComponent>(mob))
             {
                 _cult.HealAll(mob, comp.SimpleHeal);
@@ -285,8 +291,13 @@ public sealed partial class CultStructureSystem : EntitySystem
 
             _cult.HealGroup(mob, "Brute", comp.BruteHeal);
             _cult.HealGroup(mob, "Burn", comp.BurnHeal);
-            if (HasComp<BloodstreamComponent>(mob) && _blood.GetBloodLevel(mob.Owner) < 1f)
-                _magic.ModifyBloodSs13(mob, comp.BloodHeal);
+            if (HasComp<BloodstreamComponent>(mob))
+            {
+                if (_blood.GetBloodLevel(mob.Owner) < 1f)
+                    _magic.ModifyBloodSs13(mob, comp.BloodHeal);
+                // wound_clotting: раны перестают кровоточить.
+                _blood.TryModifyBleedAmount(mob.Owner, -comp.WoundClotting);
+            }
         }
     }
 
